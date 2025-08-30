@@ -318,43 +318,51 @@
     <!-- Firebase SDK -->
     <script type="module">
         // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import {
             getAuth,
             createUserWithEmailAndPassword,
             signInWithEmailAndPassword,
             onAuthStateChanged,
             signOut,
-            GoogleAuthProvider,
-            signInWithPopup,
             sendPasswordResetEmail
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBxaIJ2o2QmA-BacAgXhol_uZn2EN5Kp3s",
-            authDomain: "logicloop-wallpaper.firebaseapp.com",
-            projectId: "logicloop-wallpaper",
-            storageBucket: "logicloop-wallpaper.appspot.com",
-            messagingSenderId: "6167301331",
-            appId: "1:6167301331:web:d090e66b47bbdaa206d826",
-            measurementId: "G-30L19XTZRC"
+          apiKey: "AIzaSyBAD1l6mk3yMMPv_AjMzWCpZwSvb_s97ao",
+          authDomain: "logicloop-wallpaper-downloder.firebaseapp.com",
+          projectId: "logicloop-wallpaper-downloder",
+          storageBucket: "logicloop-wallpaper-downloder.appspot.com",
+          messagingSenderId: "670399435605",
+          appId: "1:670399435605:web:f1da29e0d6fc0b04a455dc",
+          measurementId: "G-ZM4NPNLYWC"
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        try {
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
 
-        window.firebaseAuth = {
-            auth,
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            onAuthStateChanged,
-            signOut,
-            GoogleAuthProvider,
-            signInWithPopup,
-            sendPasswordResetEmail
-        };
+            window.firebaseAuth = {
+                auth,
+                createUserWithEmailAndPassword,
+                signInWithEmailAndPassword,
+                onAuthStateChanged,
+                signOut,
+                sendPasswordResetEmail
+            };
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+            // Display an error message to the user on the page
+            const gallery = document.getElementById('gallery');
+            if (gallery) {
+                gallery.innerHTML = `<div class="col-span-full text-center p-4 bg-red-100 text-red-700 rounded-lg">
+                    <h3 class="font-bold">Firebase Error</h3>
+                    <p>Could not connect to Firebase. Please check your configuration and API key.</p>
+                </div>`;
+            }
+        }
     </script>
 
 
@@ -670,127 +678,134 @@
             };
 
             // --- Firebase Auth Logic ---
-            const { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } = window.firebaseAuth;
+            if (window.firebaseAuth) {
+                const { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } = window.firebaseAuth;
 
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    userInfo.classList.remove('hidden');
-                    userInfo.classList.add('flex');
-                    authButtons.classList.add('hidden');
-                    userAvatar.textContent = user.email.charAt(0).toUpperCase();
-                } else {
-                    currentUser = null;
-                    userInfo.classList.add('hidden');
-                    userInfo.classList.remove('flex');
-                    authButtons.classList.remove('hidden');
-                    userAvatar.textContent = '';
-                }
-            });
-
-            const handleAuthError = (error, errorElement) => {
-                let message = "An unknown error occurred.";
-                switch (error.code) {
-                    case 'auth/wrong-password':
-                    case 'auth/invalid-credential':
-                        message = "Incorrect Password. Please try again.";
-                        break;
-                    case 'auth/user-not-found':
-                        message = "No account found with this email.";
-                        break;
-                    case 'auth/email-already-in-use':
-                        message = "User already exists with this email.";
-                        break;
-                    case 'auth/weak-password':
-                        message = "Password is too weak (at least 6 characters).";
-                        break;
-                    case 'auth/invalid-email':
-                        message = "Invalid email address.";
-                        break;
-                    case 'auth/popup-closed-by-user':
-                        return; // Don't show an error if user closes popup
-                    default:
-                        message = "Something went wrong. Please try again.";
-                        break;
-                }
-                errorElement.textContent = message;
-                errorElement.classList.remove('hidden');
-            };
-
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = loginForm.loginEmail.value;
-                const password = loginForm.loginPassword.value;
-                loginError.textContent = '';
-                loginError.classList.add('hidden');
-
-                signInWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        loginForm.reset();
-                        closeTheAuthModal();
-                        showToast('Login Successful!');
-                        if (photoToDownload) {
-                            const fileName = `${photoToDownload.photographer.replace(/\s+/g, '-')}-${photoToDownload.id}.jpeg`;
-                            forceDownload(photoToDownload.src.original, fileName, document.getElementById('downloadButton'));
-                        }
-                    })
-                    .catch((error) => {
-                        handleAuthError(error, loginError);
-                        showToast('Login Failed!', false);
-                    });
-            });
-
-            signupForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = signupForm.signupEmail.value;
-                const password = signupForm.signupPassword.value;
-                const confirmPassword = signupForm.confirmPassword.value;
-                signupError.textContent = '';
-                signupError.classList.add('hidden');
-
-                if (password !== confirmPassword) {
-                    signupError.textContent = "Passwords do not match.";
-                    signupError.classList.remove('hidden');
-                    return;
-                }
-
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        signupForm.reset();
-                        closeTheAuthModal();
-                        showToast('Sign Up Successful!');
-                        if (photoToDownload) {
-                            const fileName = `${photoToDownload.photographer.replace(/\s+/g, '-')}-${photoToDownload.id}.jpeg`;
-                            forceDownload(photoToDownload.src.original, fileName, document.getElementById('downloadButton'));
-                        }
-                    })
-                    .catch((error) => {
-                        handleAuthError(error, signupError);
-                    });
-            });
-
-            forgotPasswordForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = forgotPasswordForm.resetEmail.value;
-                resetStatus.textContent = '';
-                resetStatus.classList.remove('text-red-500', 'text-green-500');
-
-                sendPasswordResetEmail(auth, email)
-                    .then(() => {
-                        closeTheAuthModal();
-                        showToast('Reset link sent! Please check your spam folder.');
-                    })
-                    .catch((error) => {
-                        handleAuthError(error, resetStatus);
-                        resetStatus.classList.add('text-red-500');
-                    });
-            });
-
-            logoutBtn.addEventListener('click', () => {
-                signOut(auth).catch((error) => {
-                    console.error('Sign out error', error);
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        userInfo.classList.remove('hidden');
+                        userInfo.classList.add('flex');
+                        authButtons.classList.add('hidden');
+                        userAvatar.textContent = user.email.charAt(0).toUpperCase();
+                    } else {
+                        currentUser = null;
+                        userInfo.classList.add('hidden');
+                        userInfo.classList.remove('flex');
+                        authButtons.classList.remove('hidden');
+                        userAvatar.textContent = '';
+                    }
                 });
-            });
+
+                const handleAuthError = (error, errorElement) => {
+                    let message = "An unknown error occurred.";
+                    switch (error.code) {
+                        case 'auth/invalid-credential':
+                            message = "Invalid email or password. Please try again.";
+                            break;
+                        case 'auth/user-not-found':
+                            message = "No account found with this email.";
+                            break;
+                        case 'auth/wrong-password':
+                             message = "Incorrect password. Please try again.";
+                             break;
+                        case 'auth/email-already-in-use':
+                            message = "User already exists with this email.";
+                            break;
+                        case 'auth/weak-password':
+                            message = "Password is too weak (at least 6 characters).";
+                            break;
+                        case 'auth/invalid-email':
+                            message = "Invalid email address.";
+                            break;
+                        case 'auth/popup-closed-by-user':
+                            return; // Don't show an error if user closes popup
+                        default:
+                            console.error("Authentication Error:", error);
+                            message = "Something went wrong. Please try again.";
+                            break;
+                    }
+                    errorElement.textContent = message;
+                    errorElement.classList.remove('hidden');
+                };
+
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = loginForm.loginEmail.value;
+                    const password = loginForm.loginPassword.value;
+                    loginError.textContent = '';
+                    loginError.classList.add('hidden');
+
+                    signInWithEmailAndPassword(auth, email, password)
+                        .then((userCredential) => {
+                            loginForm.reset();
+                            closeTheAuthModal();
+                            showToast('Login Successful!');
+                            if (photoToDownload) {
+                                openModal(photoToDownload); // Re-open modal to trigger download
+                            }
+                        })
+                        .catch((error) => {
+                            handleAuthError(error, loginError);
+                        });
+                });
+
+                signupForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = signupForm.signupEmail.value;
+                    const password = signupForm.signupPassword.value;
+                    const confirmPassword = signupForm.confirmPassword.value;
+                    signupError.textContent = '';
+                    signupError.classList.add('hidden');
+
+                    if (password !== confirmPassword) {
+                        signupError.textContent = "Passwords do not match.";
+                        signupError.classList.remove('hidden');
+                        return;
+                    }
+
+                    createUserWithEmailAndPassword(auth, email, password)
+                        .then((userCredential) => {
+                            signupForm.reset();
+                            closeTheAuthModal();
+                            showToast('Sign Up Successful!');
+                             if (photoToDownload) {
+                                openModal(photoToDownload); // Re-open modal to trigger download
+                            }
+                        })
+                        .catch((error) => {
+                            handleAuthError(error, signupError);
+                        });
+                });
+
+                forgotPasswordForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = forgotPasswordForm.resetEmail.value;
+                    resetStatus.textContent = '';
+                    resetStatus.classList.remove('text-red-500', 'text-green-500');
+
+                    sendPasswordResetEmail(auth, email)
+                        .then(() => {
+                            closeTheAuthModal();
+                            showToast('Reset link sent! Please check your spam folder.');
+                        })
+                        .catch((error) => {
+                            handleAuthError(error, resetStatus);
+                            resetStatus.classList.add('text-red-500');
+                        });
+                });
+
+
+                logoutBtn.addEventListener('click', () => {
+                    signOut(auth).then(() => {
+                        showToast('You have been logged out.');
+                    }).catch((error) => {
+                        console.error('Sign out error', error);
+                        showToast('Could not log out.', false);
+                    });
+                });
+            }
+
 
             // --- Auth Modal Tabs ---
             const showLoginTab = () => {
@@ -836,7 +851,7 @@
                 showSignupTab();
             });
 
-            forgotPasswordLink.addEventListener('click', (e) => {
+             forgotPasswordLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 loginForm.classList.add('hidden');
                 signupForm.classList.add('hidden');
@@ -849,6 +864,7 @@
             });
 
 
+
             // --- Event Listeners ---
             let searchTimeout;
             searchInput.addEventListener('input', () => {
@@ -859,7 +875,13 @@
                         fetchWallpapers(query, false);
                         document.querySelector('.category-btn.active')?.classList.remove('active');
                     } else {
-                        document.querySelector('.category-btn').click();
+                         // If search is cleared, go back to the active category or default
+                        const activeCategory = document.querySelector('.category-btn.active');
+                        if(activeCategory) {
+                             activeCategory.click();
+                        } else {
+                             fetchWallpapers('Trending');
+                        }
                     }
                 }, 500);
             });
@@ -947,3 +969,4 @@
 
 </body>
 </html>
+
