@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D LogicLoop Logo</title>
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iYmxhY2siLz48dGV4dCB4PSI1MCIgeT0iNjUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSI1MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9LPC90ZXh0Pjwvc3ZnPg==">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0a0a14;
+            font-family: 'Inter', sans-serif;
+            color: white;
+        }
+        canvas {
+            display: block;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            display:block;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+        }
+    </style>
+</head>
+<body>
+    <div id="info">Drag to explore the 3D logo</div>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+        import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+
+        let scene, camera, renderer, composer, controls;
+        let logicMesh, loopGroup;
+        const glowingLoops = [];
+        let digitalParticles;
+        const clock = new THREE.Clock();
+        let isMobile = false;
+
+        function init() {
+            // Check if the device is mobile based on screen width
+            isMobile = window.innerWidth < 768;
+
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x0a0a14, 20, 60);
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            // Adjust camera distance for mobile view
+            camera.position.z = isMobile ? 55 : 40;
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x0a0a14);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            document.body.appendChild(renderer.domElement);
+
+            // Update info text to be more touch-friendly
+            document.getElementById('info').textContent = 'Drag or swipe to explore the 3D logo';
+
+            // Environment Map for holographic reflections
+            new RGBELoader()
+                .setPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/textures/equirectangular/')
+                .load('venice_sunset_1k.hdr', function (texture) {
+                    texture.mapping = THREE.EquirectangularReflectionMapping;
+                    scene.environment = texture;
+                });
+
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0x8a2be2, 1);
+            directionalLight.position.set(-5, 5, 5);
+            scene.add(directionalLight);
+
+            const directionalLight2 = new THREE.DirectionalLight(0x00bfff, 1);
+            directionalLight2.position.set(5, -5, 5);
+            scene.add(directionalLight2);
+
+            // Controls
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            // Adjust zoom constraints for mobile
+            controls.minDistance = isMobile ? 15 : 20;
+            controls.maxDistance = isMobile ? 70 : 80;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.5;
+
+            // Post-processing for glow effect
+            const renderScene = new RenderPass(scene, camera);
+            // Reduce bloom effect on mobile for better performance
+            const bloomStrength = isMobile ? 0.7 : 0.8;
+            const bloomRadius = isMobile ? 0.35 : 0.4;
+            const bloomPass = new UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight),
+                bloomStrength,
+                bloomRadius,
+                0.2
+            );
+            composer = new EffectComposer(renderer);
+            composer.addPass(renderScene);
+            composer.addPass(bloomPass);
+
+            // Create elements
+            loadFont();
+            createGlowingLoops();
+            createDigitalCircuits();
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function loadFont() {
+            const loader = new FontLoader();
+            loader.load('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts/helvetiker_bold.typeface.json', function (font) {
+                // Adjust text size for better fit on mobile screens
+                const textOptions = {
+                    font: font,
+                    size: isMobile ? 4 : 5,
+                    height: 1.5,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.2,
+                    bevelSize: 0.1,
+                    bevelOffset: 0,
+                    bevelSegments: 5
+                };
+
+                const logoGroup = new THREE.Group();
+                scene.add(logoGroup);
+
+                // Create "Logic" text with holographic material
+                const logicGeometry = new TextGeometry('Logic', textOptions);
+                logicGeometry.center();
+
+                const logicMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xe0e0e0,
+                    metalness: 0.9,
+                    roughness: 0.1,
+                    envMapIntensity: 1.0
+                });
+                logicMesh = new THREE.Mesh(logicGeometry, logicMaterial);
+                // Adjust position to bring text closer on mobile
+                logicMesh.position.x = isMobile ? -6.5 : -8;
+                logoGroup.add(logicMesh);
+
+                // Create "Loop" text with glowing gradient material
+                loopGroup = new THREE.Group();
+                const loopText = 'Loop';
+                let currentX = 0;
+
+                const startColor = new THREE.Color("#00BFFF"); // Electric Blue
+                const endColor = new THREE.Color("#8A2BE2"); // Neon Purple
+
+                for (let i = 0; i < loopText.length; i++) {
+                    const letterGeometry = new TextGeometry(loopText[i], textOptions);
+                    letterGeometry.center();
+
+                    let letterMaterial;
+                    const currentLetter = loopText[i];
+
+                    if (currentLetter === 'L' || currentLetter === 'p') {
+                        letterMaterial = new THREE.MeshStandardMaterial({
+                            color: 0x000000, // Black
+                            metalness: 0.5,
+                            roughness: 0.4,
+                        });
+                    } else {
+                        const t = i / (loopText.length - 1);
+                        const letterColor = new THREE.Color().lerpColors(startColor, endColor, t);
+                        letterMaterial = new THREE.MeshStandardMaterial({
+                            color: letterColor,
+                            emissive: letterColor,
+                            emissiveIntensity: 1.5,
+                            metalness: 0.2,
+                            roughness: 0.3
+                        });
+                    }
+
+                    const letterMesh = new THREE.Mesh(letterGeometry, letterMaterial);
+                    letterMesh.position.x = currentX;
+
+                    const letterWidth = new THREE.Box3().setFromObject(letterMesh).getSize(new THREE.Vector3()).x;
+                    currentX += letterWidth * 0.9;
+
+                    loopGroup.add(letterMesh);
+                }
+
+                const loopBox = new THREE.Box3().setFromObject(loopGroup);
+                const loopCenter = loopBox.getCenter(new THREE.Vector3());
+                loopGroup.children.forEach(child => {
+                    child.position.x -= loopCenter.x;
+                });
+
+                // Adjust position to bring text closer on mobile
+                loopGroup.position.x = isMobile ? 6.5 : 8;
+                logoGroup.add(loopGroup);
+            });
+        }
+
+        function createGlowingLoops() {
+            const loopGeometry = new THREE.TorusGeometry(15, 0.1, 16, 100);
+            const colors = [0x00BFFF, 0x8A2BE2];
+
+            for (let i = 0; i < 5; i++) {
+                const loopMaterial = new THREE.MeshStandardMaterial({
+                    color: colors[i % 2],
+                    emissive: colors[i % 2],
+                    emissiveIntensity: 2
+                });
+                const loop = new THREE.Mesh(loopGeometry, loopMaterial);
+                loop.rotation.x = Math.random() * Math.PI;
+                loop.rotation.y = Math.random() * Math.PI;
+                loop.scale.setScalar(1 + i * 0.15);
+                scene.add(loop);
+                glowingLoops.push(loop);
+            }
+        }
+
+        function createDigitalCircuits() {
+            // Reduce particle count on mobile for performance
+            const particleCount = isMobile ? 500 : 1000;
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 80;
+                positions[i3 + 1] = (Math.random() - 0.5) * 80;
+                positions[i3 + 2] = (Math.random() - 0.5) * 80;
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const material = new THREE.PointsMaterial({
+                color: 0x5555ff,
+                size: 0.1,
+                transparent: true,
+                opacity: 0.7,
+                blending: THREE.AdditiveBlending
+            });
+
+            digitalParticles = new THREE.Points(geometry, material);
+            scene.add(digitalParticles);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // The main logo group will contain both text meshes after the font loads
+            const logoGroup = scene.children.find(c => c.type === 'Group' && c.children.length > 1);
+            if (logoGroup) {
+                 // Animate the individual text elements within the group if they exist
+                const logic = logoGroup.children[0];
+                const loop = logoGroup.children[1];
+                if(logic) logic.position.y = Math.sin(elapsedTime * 0.3) * 0.4;
+                if(loop) loop.position.y = Math.cos(elapsedTime * 0.3) * 0.4;
+            }
+
+            glowingLoops.forEach((loop, i) => {
+                loop.rotation.x += 0.0008 * (i + 1);
+                loop.rotation.z += 0.0008 * (i + 1);
+            });
+
+            if(digitalParticles) {
+                digitalParticles.rotation.y += 0.0004;
+            }
+
+            controls.update();
+            composer.render();
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
