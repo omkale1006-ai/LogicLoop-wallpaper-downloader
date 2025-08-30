@@ -249,7 +249,7 @@
                     <button id="loginTab" class="flex-1 py-2 font-semibold text-indigo-600 border-b-2 border-indigo-600">Login</button>
                     <button id="signupTab" class="flex-1 py-2 font-semibold text-gray-500 dark:text-gray-400">Sign Up</button>
                 </div>
-                <div class="relative h-[370px]">
+                <div class="relative h-[520px]">
                     <!-- Login Form -->
                     <form id="loginForm" class="absolute top-0 left-0 w-full">
                         <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">Welcome Back!</h2>
@@ -267,6 +267,13 @@
                         </div>
                         <p id="loginError" class="text-red-500 text-sm text-center mb-4 min-h-[20px]"></p>
                         <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">Login</button>
+                        <div class="my-4 flex items-center before:flex-1 before:border-t before:border-gray-300 dark:before:border-gray-600 after:flex-1 after:border-t after:border-gray-300 dark:after:border-gray-600">
+                           <p class="mx-4 mb-0 text-center font-semibold text-gray-500 dark:text-gray-400">OR</p>
+                        </div>
+                        <button type="button" id="googleLoginBtn" class="w-full flex items-center justify-center gap-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                           <svg class="w-4 h-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 111.8 512 0 398.9 0 261.8 0 124.9 111.8 12.6 244 12.6c70.3 0 129.8 27.8 174.4 72.4l-69.4 67.4c-24.3-23.2-56.7-37.3-95-37.3-72.3 0-131.5 59.1-131.5 131.5s59.2 131.5 131.5 131.5c79.9 0 119.5-57.5 123.8-87.3H244v-83.3h236.1c2.3 12.7 3.9 26.9 3.9 42.4z"></path></svg>
+                           Continue with Google
+                        </button>
                     </form>
 
                     <!-- Signup Form -->
@@ -287,6 +294,13 @@
                         </div>
                         <p id="signupError" class="text-red-500 text-sm text-center mb-4 min-h-[20px]"></p>
                         <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">Sign Up</button>
+                         <div class="my-4 flex items-center before:flex-1 before:border-t before:border-gray-300 dark:before:border-gray-600 after:flex-1 after:border-t after:border-gray-300 dark:after:border-gray-600">
+                           <p class="mx-4 mb-0 text-center font-semibold text-gray-500 dark:text-gray-400">OR</p>
+                        </div>
+                        <button type="button" id="googleSignupBtn" class="w-full flex items-center justify-center gap-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                           <svg class="w-4 h-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 111.8 512 0 398.9 0 261.8 0 124.9 111.8 12.6 244 12.6c70.3 0 129.8 27.8 174.4 72.4l-69.4 67.4c-24.3-23.2-56.7-37.3-95-37.3-72.3 0-131.5 59.1-131.5 131.5s59.2 131.5 131.5 131.5c79.9 0 119.5-57.5 123.8-87.3H244v-83.3h236.1c2.3 12.7 3.9 26.9 3.9 42.4z"></path></svg>
+                           Continue with Google
+                        </button>
                     </form>
                      <!-- Forgot Password Form -->
                     <form id="forgotPasswordForm" class="absolute top-0 left-0 w-full hidden">
@@ -325,7 +339,9 @@
             signInWithEmailAndPassword,
             onAuthStateChanged,
             signOut,
-            sendPasswordResetEmail
+            sendPasswordResetEmail,
+            GoogleAuthProvider,
+            signInWithPopup
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Your web app's Firebase configuration
@@ -350,7 +366,9 @@
                 signInWithEmailAndPassword,
                 onAuthStateChanged,
                 signOut,
-                sendPasswordResetEmail
+                sendPasswordResetEmail,
+                GoogleAuthProvider,
+                signInWithPopup
             };
         } catch (error) {
             console.error("Firebase initialization failed:", error);
@@ -455,6 +473,9 @@
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
             const backToTopBtn = document.getElementById('backToTopBtn');
+            const googleLoginBtn = document.getElementById('googleLoginBtn');
+            const googleSignupBtn = document.getElementById('googleSignupBtn');
+
 
             // --- State variables ---
             let currentPage = 1;
@@ -679,7 +700,7 @@
 
             // --- Firebase Auth Logic ---
             if (window.firebaseAuth) {
-                const { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } = window.firebaseAuth;
+                const { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } = window.firebaseAuth;
 
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
@@ -687,13 +708,22 @@
                         userInfo.classList.remove('hidden');
                         userInfo.classList.add('flex');
                         authButtons.classList.add('hidden');
-                        userAvatar.textContent = user.email.charAt(0).toUpperCase();
+
+                        userAvatar.innerHTML = ''; // Clear previous content
+                        const initial = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
+
+                        if (user.photoURL) {
+                            userAvatar.innerHTML = `<img src="${user.photoURL}" alt="${initial}" class="w-full h-full rounded-full object-cover">`;
+                        } else {
+                            userAvatar.textContent = initial;
+                        }
+
                     } else {
                         currentUser = null;
                         userInfo.classList.add('hidden');
                         userInfo.classList.remove('flex');
                         authButtons.classList.remove('hidden');
-                        userAvatar.textContent = '';
+                        userAvatar.innerHTML = ''; // Clear avatar content
                     }
                 });
 
@@ -729,6 +759,22 @@
                     errorElement.classList.remove('hidden');
                 };
 
+                const handleGoogleSignIn = () => {
+                    const provider = new GoogleAuthProvider();
+                    signInWithPopup(auth, provider)
+                        .then((result) => {
+                            const user = result.user;
+                            closeTheAuthModal();
+                            showToast(`Welcome, ${user.displayName}!`);
+                        }).catch((error) => {
+                            handleAuthError(error, loginError);
+                            handleAuthError(error, signupError);
+                        });
+                };
+
+                googleLoginBtn.addEventListener('click', handleGoogleSignIn);
+                googleSignupBtn.addEventListener('click', handleGoogleSignIn);
+
                 loginForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const email = loginForm.loginEmail.value;
@@ -741,9 +787,6 @@
                             loginForm.reset();
                             closeTheAuthModal();
                             showToast('Login Successful!');
-                            if (photoToDownload) {
-                                openModal(photoToDownload); // Re-open modal to trigger download
-                            }
                         })
                         .catch((error) => {
                             handleAuthError(error, loginError);
@@ -769,9 +812,6 @@
                             signupForm.reset();
                             closeTheAuthModal();
                             showToast('Sign Up Successful!');
-                             if (photoToDownload) {
-                                openModal(photoToDownload); // Re-open modal to trigger download
-                            }
                         })
                         .catch((error) => {
                             handleAuthError(error, signupError);
