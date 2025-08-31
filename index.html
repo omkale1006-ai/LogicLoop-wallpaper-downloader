@@ -467,6 +467,7 @@
       flex: 2;
       background: #000;
       position: relative;
+      min-width: 0; /* Fix for flex shrink issue */
     }
     .modal-image img {
       width: 100%;
@@ -483,6 +484,7 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      min-width: 350px; /* Ensure details are readable */
     }
     
     .modal-details > div > * {
@@ -491,11 +493,7 @@
     }
 
     .modal-details > div > h2 { animation-delay: 0.2s; }
-    .modal-details > div > p { animation-delay: 0.3s; }
-    .modal-details > div > .stats { animation-delay: 0.4s; }
-    .modal-details > div > .meta { animation-delay: 0.5s; }
-    .modal-details > div > .tags { animation-delay: 0.6s; }
-    .modal-actions { animation-delay: 0.7s; }
+    .modal-actions { animation-delay: 0.3s; }
 
 
     .badge {
@@ -516,59 +514,7 @@
       line-height: 1.4;
       color: var(--text-primary);
     }
-    .modal-details p {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      margin-bottom: 20px;
-      line-height: 1.6;
-    }
-
-    .stats {
-      display: flex;
-      gap: 20px;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-bottom: 20px;
-    }
-    .stats span {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .meta .category {
-      background: var(--accent-primary);
-      color: #fff;
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-    .meta .date {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 25px;
-    }
-    .tags span {
-      background: var(--bg-interactive);
-      font-size: 0.8rem;
-      padding: 6px 12px;
-      border-radius: 6px;
-      color: var(--text-secondary);
-    }
-
+    
     .modal-actions {
       display: flex;
       flex-direction: column;
@@ -955,20 +901,6 @@
       <div class="modal-details">
         <div>
           <h2 id="modalTitle"></h2>
-          <p id="modalPhotographer"></p>
-  
-          <div class="stats">
-            <span id="modalDownloads"></span>
-            <span id="modalViews"></span>
-          </div>
-  
-          <div class="meta">
-            <span class="category" id="modalCategory"></span>
-            <span class="date" id="modalDate"></span>
-          </div>
-  
-          <div class="tags" id="modalTags">
-          </div>
         </div>
   
         <!-- Action buttons -->
@@ -1077,12 +1009,6 @@
     const modalOverlay = document.getElementById('modalOverlay');
     const modalImage = document.getElementById('modalImage');
     const modalTitle = document.getElementById('modalTitle');
-    const modalPhotographer = document.getElementById('modalPhotographer');
-    const modalDownloads = document.getElementById('modalDownloads');
-    const modalViews = document.getElementById('modalViews');
-    const modalCategory = document.getElementById('modalCategory');
-    const modalDate = document.getElementById('modalDate');
-    const modalTags = document.getElementById('modalTags');
     const modalDownloadBtn = document.getElementById('modalDownloadBtn');
     const shareBtn = document.getElementById('shareBtn');
     const closeModalBtn = document.getElementById('closeModal');
@@ -1352,32 +1278,9 @@
     // --- MODAL FUNCTIONS ---
 
     async function showModal(photo) {
-        // Part 1: Immediately display the modal with all available info
         currentModalPhoto = photo;
         modalImage.src = photo.src.large2x;
         modalTitle.innerHTML = `${photo.alt || 'Untitled Wallpaper'} <span class="badge">🔥 Trending</span>`;
-        modalPhotographer.textContent = `Photo by ${photo.photographer}`;
-        modalDownloads.textContent = `⬇️ ${(Math.floor(Math.random() * 1500) + 500).toLocaleString()} downloads`;
-        modalViews.textContent = `👁️ ${(Math.floor(Math.random() * 8000) + 2000).toLocaleString()} views`;
-        modalCategory.textContent = currentQuery;
-
-        const date = new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 30);
-        modalDate.textContent = date.toLocaleDateString();
-        
-        modalTags.innerHTML = '';
-        const tags = photo.alt.split(' ').filter(tag => tag.length > 3 && isNaN(tag));
-        tags.slice(0, 5).forEach(tag => {
-            const span = document.createElement('span');
-            span.textContent = `#${tag.toLowerCase().replace(/[^a-z0-9]/gi, '')}`;
-            modalTags.appendChild(span);
-        });
-        if (tags.length === 0) {
-            const span = document.createElement('span');
-            span.textContent = `#${currentQuery.toLowerCase()}`;
-            modalTags.appendChild(span);
-        }
-        
-        // Show the modal to the user
         modalOverlay.classList.add('show');
     }
 
