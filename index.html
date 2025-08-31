@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WallpaperHub</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32'><rect width='32' height='32' rx='5' fill='black'/><text x='50%' y='50%' dominant-baseline='central' text-anchor='middle' font-size='16' font-family='Poppins, sans-serif' font-weight='700' fill='white'>OK</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1049,7 +1050,7 @@
                 Remembered your password? <button id="backToLogin">Back to Log In</button>
             </div>
             <div class="contact-info">
-              <p class="contact-info-title">Helpline </p>
+              <p class="contact-info-title">Helpline</p>
               <p>Contact: <a href="tel:7775983924">7775983924</a></p>
               <p>Email: <a href="mailto:kaleom5757@gmail.com">kaleom5757@gmail.com</a></p>
             </div>
@@ -1321,8 +1322,8 @@
     };
 
     async function fetchWallpapers(query, page, perPage = 40, append = false) {
-        if (API_KEY === 'YOUR_PEXELS_API_KEY' || !API_KEY) {
-            gallery.innerHTML = `<p style="text-align: center; color: #ffb8b8; padding: 20px;"><b>Action Required:</b> Please get a free API key from Pexels.com and add it to the JavaScript code to see the wallpapers.</p>`;
+        if (!API_KEY || API_KEY === 'YOUR_PEXELS_API_KEY') {
+            gallery.innerHTML = `<p style="text-align: center; color: var(--error-color);"><b>Action Required:</b> Please add a valid Pexels API key in the script.</p>`;
             loader.style.display = 'none';
             return;
         }
@@ -1341,7 +1342,7 @@
 
             if (!response.ok) {
                 if (response.status === 401) {
-                   gallery.innerHTML = `<p style="text-align: center; color: #ffb8b8;">Authentication failed. Your API key appears to be invalid. Please check it.</p>`;
+                   gallery.innerHTML = `<p style="text-align: center; color: var(--error-color);">Authentication failed. Your Pexels API key seems invalid.</p>`;
                 } else {
                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -1354,7 +1355,7 @@
 
         } catch (error) {
             console.error("Error fetching wallpapers:", error);
-            gallery.innerHTML = `<p style="text-align: center; color: #ffb8b8;">Could not fetch wallpapers. This might be a network issue. Please check your connection and try again.</p>`;
+            gallery.innerHTML = `<p style="text-align: center; color: var(--error-color);">Could not fetch wallpapers. Check your network connection and try again.</p>`;
         } finally {
             isFetching = false;
             loader.style.display = 'none';
@@ -1585,6 +1586,17 @@
         }
 
         // Initial fetch for the gallery
+        const initialCategories = ["Nature", "Cars", "Space", "Technology", "Animals", "Abstract", "City", "Architecture", "Art", "Minimal"];
+        currentQuery = initialCategories[Math.floor(Math.random() * initialCategories.length)];
+
+        // Update active category button
+        categoryButtons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.query === currentQuery || (currentQuery === 'Minimal' && btn.dataset.query === 'All')) {
+                btn.classList.add('active');
+            }
+        });
+
         currentPage = 1;
         fetchWallpapers(currentQuery, currentPage, 40, false);
     });
