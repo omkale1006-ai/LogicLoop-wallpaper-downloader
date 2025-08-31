@@ -1,975 +1,1429 @@
 <!DOCTYPE html>
-<html lang="hi" class="">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LogicLoop | Wallpaper Downloader</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WallpaperHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* RESET */
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #111827;
+      --bg-interactive: #1f2937;
+      --text-primary: #fff;
+      --text-secondary: #94a3b8;
+      --accent-primary: #4f46e5;
+      --accent-secondary: #6366f1;
+      --accent-gradient: linear-gradient(90deg, #6366f1, #8b5cf6);
+      --error-color: #fca5a5;
+      --success-color: #86efac;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.3s, color 0.3s;
+      animation: fadeIn 1s ease-in-out;
+    }
 
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='black' /><text x='50%' y='50%' text-anchor='middle' dy='.3em' font-size='50' font-family='Arial, sans-serif' font-weight='bold' fill='white'>OK</text></svg>">
+    body.light-theme {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --bg-interactive: #e2e8f0;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+    }
 
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    /* ANIMATIONS */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
 
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display.swap" rel="stylesheet">
-
-    <style>
-        /* Custom styles */
-        html {
-            scroll-behavior: smooth;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            /* Transition for smooth theme change */
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        /* Custom scrollbar for a better look */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #E5E7EB;
-        }
-        .dark ::-webkit-scrollbar-track {
-            background: #1F2937;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #9CA3AF;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6B7280;
-        }
-
-        /* New Animations */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .animate-fade-in-down {
-            animation: fadeInDown 0.8s ease-out forwards;
-        }
-
-        .animate-fade-in-up {
+    @keyframes fadeInUp {
+        from {
             opacity: 0;
-            animation: fadeInUp 0.6s ease-out forwards;
+            transform: translateY(20px);
         }
-
-        .animate-pop-in {
-            opacity: 0;
-            animation: popIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-        }
-
-        /* Modal transition */
-        .modal-backdrop {
-            transition: opacity 0.3s ease-in-out;
-        }
-        .modal-content {
-            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease;
-            transform: scale(0.9) translateY(10px);
-            opacity: 0;
-        }
-        .modal-backdrop:not(.hidden) .modal-content {
-            transform: scale(1) translateY(0);
+        to {
             opacity: 1;
+            transform: translateY(0);
         }
+    }
 
-        /* Skeleton Loader */
-        .skeleton {
-            background-color: #e2e8f0;
-            position: relative;
-            overflow: hidden;
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
         }
-        .dark .skeleton {
-            background-color: #374151;
+        to {
+            opacity: 1;
+            transform: scale(1);
         }
-        .skeleton::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -150%;
-            width: 150%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            animation: shimmer 1.5s infinite;
-        }
-        .dark .skeleton::after {
-             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-        }
-        @keyframes shimmer {
-            100% {
-                left: 150%;
-            }
-        }
-    </style>
+    }
+
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-secondary);
+      padding: 12px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      transition: background-color 0.3s;
+    }
+    body.light-theme .navbar {
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      transition: transform 0.3s ease;
+    }
+    .logo:hover {
+        transform: scale(1.05);
+    }
+    .gradient {
+      background: linear-gradient(90deg, #3b82f6, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+
+    /* SEARCH BAR */
+    .search {
+      flex: 1;
+      margin: 0 20px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      max-width: 500px;
+    }
+    .search input {
+      width: 100%;
+      padding: 10px 45px 10px 15px;
+      border-radius: 8px;
+      border: 1px solid var(--bg-primary);
+      outline: none;
+      font-size: 0.95rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+    }
+     .search input:focus {
+        border-color: var(--accent-secondary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+     }
+    #searchBtn {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 45px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+    #searchBtn:hover {
+        color: var(--text-primary);
+    }
+
+    /* NAV ACTIONS */
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: background-color 0.3s, transform 0.3s ease;
+    }
+    .icon-btn:hover {
+        background: #334155;
+        transform: rotate(15deg) scale(1.1);
+    }
+    body.light-theme .icon-btn:hover {
+        background: #e2e8f0;
+    }
+    .signin {
+      background: var(--accent-gradient);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    .signin:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
+    #userProfile {
+        position: relative;
+    }
+    #userProfile img {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s;
+    }
+    #userProfile img:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(255,255,255,0.3);
+    }
+
+    .profile-dropdown {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        overflow: hidden;
+        display: none;
+        z-index: 1100;
+        width: 120px;
+        animation: fadeInUp 0.3s ease forwards;
+    }
+
+    .profile-dropdown button {
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        padding: 12px 20px;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.3s;
+    }
+
+    .profile-dropdown button:hover {
+        background-color: #334155;
+    }
+
+    body.light-theme .profile-dropdown {
+        background-color: #fff;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    body.light-theme .profile-dropdown button {
+        color: var(--text-primary);
+    }
+    body.light-theme .profile-dropdown button:hover {
+        background-color: #f1f5f9;
+    }
+
+
+    /* HERO SECTION */
+    .hero {
+      text-align: center;
+      padding: 80px 20px;
+      background: linear-gradient(180deg, #4f46e5, #a21caf);
+    }
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 15px;
+      color: #fff;
+      animation: fadeInUp 0.8s ease-out;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: #e2e8f0;
+      margin-bottom: 30px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeInUp 0.8s ease-out 0.2s backwards;
+      line-height: 1.6;
+    }
+    .hero-features {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      color: #fff;
+    }
+    .hero-features div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+    .hero-features span {
+      font-size: 1.2rem;
+    }
+
+    /* CATEGORIES */
+    .categories {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 20px;
+      background: var(--bg-tertiary);
+      transition: background-color 0.3s;
+    }
+    .categories button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-interactive);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 999px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background 0.3s, transform 0.2s, color 0.3s, box-shadow 0.3s;
+      opacity: 0;
+      animation: fadeInUp 0.5s ease-out forwards;
+    }
+    .categories button:hover {
+      background: #374151;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+    body.light-theme .categories button:hover {
+        background: #cbd5e1;
+    }
+    .categories button.active {
+      background: var(--accent-gradient);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    /* MAIN CONTENT & GALLERY */
+    .container {
+        padding: 30px;
+    }
+    .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    .gallery-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        background: var(--bg-secondary);
+        animation: scaleIn 0.5s ease-out;
+    }
+     body.light-theme .gallery-item {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+     }
+    .gallery-item:hover {
+        transform: scale(1.03);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+    }
+     body.light-theme .gallery-item:hover {
+        box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+     }
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .gallery-item:hover img {
+        transform: scale(1.1);
+    }
+    .gallery-item .overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        padding: 20px 15px 15px;
+        color: white;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: opacity 0.3s, transform 0.3s;
+    }
+    .gallery-item:hover .overlay {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .overlay p {
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    /* LOADER */
+     .loader-container {
+        text-align: center;
+        padding: 40px;
+        display: none; /* Hidden by default */
+     }
+    .loader {
+        border: 5px solid var(--bg-interactive);
+        border-top: 5px solid var(--accent-secondary);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* NEW MODAL STYLES */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.85);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+        padding: 20px;
+    }
+    .modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    .modal-new {
+      display: flex;
+      background: var(--bg-tertiary);
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 1100px;
+      width: 100%;
+      height: 90vh;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.6);
+      transform: scale(0.95);
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .modal-overlay.show .modal-new {
+        transform: scale(1);
+    }
+
+    .modal-image {
+      flex: 2;
+      background: #000;
+      position: relative;
+    }
+    .modal-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      animation: scaleIn 0.5s 0.1s ease-out backwards;
+    }
+
+    .modal-details {
+      flex: 1;
+      background: var(--bg-secondary);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .modal-details > div > * {
+       opacity: 0;
+       animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .modal-details > div > h2 { animation-delay: 0.2s; }
+    .modal-details > div > p { animation-delay: 0.3s; }
+    .modal-details > div > .stats { animation-delay: 0.4s; }
+    .modal-details > div > .meta { animation-delay: 0.5s; }
+    .modal-details > div > .tags { animation-delay: 0.6s; }
+    .modal-actions { animation-delay: 0.7s; }
+
+
+    .badge {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+      color: #fff;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-left: 8px;
+      display: inline-block;
+      font-weight: 500;
+    }
+
+    .modal-details h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+    .modal-details p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+    .stats span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .meta .category {
+      background: var(--accent-primary);
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .meta .date {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 25px;
+    }
+    .tags span {
+      background: var(--bg-interactive);
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: var(--text-secondary);
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: auto;
+    }
+    .btn {
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .btn.download {
+      background: var(--accent-gradient);
+      color: #fff;
+    }
+    .btn.download:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .btn.share {
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+    }
+    .btn.share:hover {
+      background: #374151;
+      transform: translateY(-2px);
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: -50px;
+        background: white;
+        color: black;
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2100;
+        transition: transform 0.3s;
+    }
+    .close-modal:hover {
+        transform: rotate(90deg);
+    }
+
+    /* LOGIN PAGE STYLES */
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--bg-tertiary);
+      padding: 40px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: background-color 0.3s;
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    .logo-login {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 15px;
+    }
+
+    .login-container h2 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+     .login-container p {
+        color: var(--text-secondary);
+        margin-bottom: 25px;
+     }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 25px 0;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #374151;
+      margin: 0 15px;
+      transition: background-color 0.3s;
+    }
+    body.light-theme .divider::before,
+    body.light-theme .divider::after {
+        background: #d1d5db;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 18px;
+    }
+    .login-container label {
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+    .login-container input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+    }
+    body.light-theme .login-container input {
+        border-color: #d1d5db;
+    }
+    .login-container input:focus {
+      border-color: var(--accent-secondary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent-gradient);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 10px 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .toggle-auth {
+      font-size: 0.9rem;
+      margin-top: 20px;
+      color: var(--text-secondary);
+    }
+    .toggle-auth button {
+      color: var(--accent-secondary);
+      background: none;
+      border: none;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: inherit;
+      padding: 0;
+      transition: color 0.3s, letter-spacing 0.3s;
+    }
+    .toggle-auth button:hover {
+        color: #fff;
+        letter-spacing: 0.5px;
+    }
+
+     #authMessage {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        display: none; /* Hidden by default */
+     }
+     #authMessage.error {
+        background-color: rgba(239, 68, 68, 0.2);
+        color: var(--error-color);
+     }
+     #authMessage.success {
+        background-color: rgba(74, 222, 128, 0.2);
+        color: var(--success-color);
+     }
+
+    /* TOAST NOTIFICATION */
+    #toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+    .toast {
+        background-color: #334155;
+        color: #fff;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        margin-bottom: 10px;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.4s ease;
+    }
+    .toast.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .toast.success {
+        background-color: #22c55e;
+    }
+     .toast.info {
+        background-color: #3b82f6;
+     }
+     .toast.error {
+        background-color: #ef4444;
+     }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+<body>
+  <div id="main-wrapper">
+      <!-- NAVBAR -->
+      <nav class="navbar">
+        <div class="logo">
+          LogicL<span class="gradient">oo</span>p
+        </div>
+        <div class="search">
+          <input type="text" id="searchInput" placeholder="Search wallpapers... (e.g. 'tigers')">
+          <button id="searchBtn">🔍</button>
+        </div>
+        <div class="actions">
+          <div class="icon-btn" id="themeToggleBtn">🌙</div>
+          <div id="userProfile" style="display: none;">
+            <img id="userImg" src="" alt="User Profile">
+            <div class="profile-dropdown" id="profileDropdown">
+                <button id="logoutBtn">Logout</button>
+            </div>
+          </div>
+          <button class="signin" id="authBtn">👤 Sign In</button>
+        </div>
+      </nav>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 transform -translate-y-5 transition-all duration-300 z-50">
-        <p id="toastMessage"></p>
+      <!-- HERO -->
+      <section class="hero">
+        <h1>Stunning Wallpapers</h1>
+        <p>Discover thousands of high-quality wallpapers in HD, Full HD, and 4K resolutions. Perfect for your desktop, mobile, and tablet.</p>
+        <div class="hero-features">
+          <div><span>⭐</span> Premium Quality</div>
+          <div><span>⬇️</span> Free Downloads</div>
+          <div><span>📈</span> Daily Updates</div>
+        </div>
+      </section>
+
+      <!-- CATEGORIES -->
+      <div class="categories">
+        <button class="active" data-query="All">📂 All</button>
+        <button data-query="Nature">🏔️ Nature</button>
+        <button data-query="Cars">🚗 Cars</button>
+        <button data-query="Space">🪐 Space</button>
+        <button data-query="Technology">💻 Technology</button>
+        <button data-query="Animals">🐾 Animals</button>
+        <button data-query="Abstract">🎨 Abstract</button>
+        <button data-query="City">🏙️ City</button>
+        <button data-query="Architecture">🏛️ Architecture</button>
+        <button data-query="Art">📷 Art</button>
+      </div>
+
+      <!-- GALLERY CONTAINER -->
+      <main class="container">
+          <div class="gallery" id="gallery"></div>
+          <div class="loader-container" id="loader">
+              <div class="loader"></div>
+          </div>
+      </main>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-new">
+      <!-- Left side -->
+      <div class="modal-image">
+        <img id="modalImage" src="" alt="Wallpaper Preview">
+      </div>
+
+      <!-- Right side -->
+      <div class="modal-details">
+        <div>
+          <h2 id="modalTitle"></h2>
+          <p id="modalPhotographer"></p>
+
+          <div class="stats">
+            <span id="modalDownloads"></span>
+            <span id="modalViews"></span>
+          </div>
+
+          <div class="meta">
+            <span class="category" id="modalCategory"></span>
+            <span class="date" id="modalDate"></span>
+          </div>
+
+          <div class="tags" id="modalTags">
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="modal-actions">
+          <button class="btn download" id="modalDownloadBtn">⬇️ Download Wallpaper</button>
+          <button class="btn share" id="shareBtn">🔗 Share Wallpaper</button>
+        </div>
+      </div>
     </div>
+    <button class="close-modal" id="closeModal">&times;</button>
+  </div>
 
-    <!-- Sticky Header: Contains Navigation and Search Bar -->
-    <header class="sticky top-0 z-40 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-        <!-- Navigation Bar -->
-        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="#" class="transition-transform duration-300 hover:scale-105">
-                <svg width="130" height="28" viewBox="0 0 130 28" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#A78BFA;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <text x="0" y="22" font-family="Inter, sans-serif" font-size="24" font-weight="800" class="fill-gray-900 dark:fill-gray-100">
-                        LogicL<tspan fill="url(#logoGradient)">oo</tspan>p
-                    </text>
-                </svg>
-            </a>
-            <div class="flex items-center gap-4">
-                <!-- Theme Toggle Button -->
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                    <svg id="theme-toggle-dark-icon" class="hidden w-6 h-6 text-gray-600 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
-                    <svg id="theme-toggle-light-icon" class="hidden w-6 h-6 text-gray-600 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
-                </button>
-                <!-- Auth Buttons -->
-                <div id="authButtons" class="flex items-center gap-2">
-                    <button id="navLoginBtn" class="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md">Login</button>
-                    <button id="navSignupBtn" class="text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-2 rounded-md">Sign Up</button>
+  <!-- LOGIN PAGE CONTAINER (Initially hidden) -->
+  <div id="loginPageContainer" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; align-items: center; justify-content: center; background: var(--bg-primary); z-index: 3000; transition: background-color 0.3s;">
+    <div class="login-container">
+        <div class="logo-login">
+            LogicL<span class="gradient">oo</span>p
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-form-container">
+            <h2>Welcome Back!</h2>
+            <p>Log in to access your account.</p>
+            <form id="loginForm" style="margin-top: 25px;">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="name@example.com" required>
                 </div>
-                <!-- User Info / Logout Button -->
-                <div id="userInfo" class="hidden items-center gap-3">
-                    <div id="userAvatar" class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm"></div>
-                    <button id="logoutBtn" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Logout</button>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
                 </div>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Main Container -->
-    <div class="container mx-auto px-4 py-8">
-
-        <!-- Hero Section -->
-        <header class="text-center mt-8 mb-12 md:mt-12 md:mb-20">
-            <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-4 animate-fade-in-down">Find Your Next Wallpaper</h1>
-            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto animate-fade-in-down" style="animation-delay: 150ms;">Discover high-quality wallpapers curated for your devices. Free to download and use.</p>
-        </header>
-
-        <!-- Search Section -->
-        <div class="mb-12 animate-fade-in-down" style="animation-delay: 300ms;">
-            <div class="max-w-xl mx-auto">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    </div>
-                    <input type="search" id="searchInput" placeholder="Find your next wallpaper..." class="block w-full p-4 pl-12 text-md text-gray-900 border border-gray-200 rounded-full bg-white dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
-                </div>
+                <button type="submit" class="auth-btn">Log In</button>
+            </form>
+            <div class="toggle-auth">
+                Don’t have an account? <button id="showSignup">Create one</button>
             </div>
         </div>
 
-        <!-- Category Filters -->
-        <div id="categoryFilters" class="flex justify-center flex-wrap gap-3 mb-12">
-            <!-- Categories will be loaded here by JavaScript -->
+        <!-- Signup Form -->
+        <div id="signup-form-container" style="display: none;">
+            <h2>Create Account</h2>
+            <p>Get started with a free account.</p>
+            <form id="signupForm" style="margin-top: 25px;">
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" placeholder="name@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="6+ characters" required>
+                </div>
+                <button type="submit" class="auth-btn">Create Account</button>
+            </form>
+            <div class="toggle-auth">
+                Already have an account? <button id="showLogin">Log In</button>
+            </div>
         </div>
 
-        <!-- Wallpaper Gallery -->
-        <main>
-            <div id="gallery" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Wallpapers will be loaded here by JavaScript -->
-            </div>
-            <div id="loader" class="text-center py-10 hidden">
-                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
-                 <p class="mt-4 text-gray-500 dark:text-gray-400">Loading...</p>
-            </div>
-            <div id="loadMoreContainer" class="text-center mt-10">
-                <button id="loadMoreBtn" class="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-indigo-700 transition-transform transform hover:scale-105 hidden">Load More</button>
-            </div>
-        </main>
-
+        <div id="authMessage" class="error"></div>
     </div>
+</div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-16">
-        <div class="container mx-auto px-4 py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <a href="#">
-                <svg width="130" height="28" viewBox="0 0 130 28" xmlns="http://www.w3.org/2000/svg">
-                    <text x="0" y="22" font-family="Inter, sans-serif" font-size="24" font-weight="800" class="fill-gray-900 dark:fill-gray-100">
-                        LogicL<tspan fill="url(#logoGradient)">oo</tspan>p
-                    </text>
-                </svg>
-            </a>
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-                © 2025 LogicLoop. All Rights Reserved.
-            </p>
-        </div>
-    </footer>
+<div id="toast-container"></div>
+
+<script type="module">
+    // --- FIREBASE SDK IMPORTS ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // --- FIREBASE CONFIGURATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBAD1l6mk3yMMPv_AjMzWCpZwSvb_s97ao",
+      authDomain: "logicloop-wallpaper-downloder.firebaseapp.com",
+      projectId: "logicloop-wallpaper-downloder",
+      storageBucket: "logicloop-wallpaper-downloder.appspot.com",
+      messagingSenderId: "670399435605",
+      appId: "1:670399435605:web:f1da29e0d6fc0b04a455dc",
+      measurementId: "G-ZM4NPNLYWC"
+    };
+
+    // --- INITIALIZE FIREBASE ---
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // --- START OF JAVASCRIPT ---
+    const API_KEY = 'ytT8SGMXQS6IeAMtOljpbiB5PP8KC9SMlVznZuc3qyB7NIx1im6j1Rty';
+
+    // DOM Elements
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const gallery = document.getElementById('gallery');
+    const loader = document.getElementById('loader');
+    const categoryButtons = document.querySelectorAll('.categories button');
+
+    // Auth Elements
+    const authBtn = document.getElementById('authBtn');
+    const userProfile = document.getElementById('userProfile');
+    const userImg = document.getElementById('userImg');
+    const profileDropdown = document.getElementById('profileDropdown');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Modal Elements
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalPhotographer = document.getElementById('modalPhotographer');
+    const modalDownloads = document.getElementById('modalDownloads');
+    const modalViews = document.getElementById('modalViews');
+    const modalCategory = document.getElementById('modalCategory');
+    const modalDate = document.getElementById('modalDate');
+    const modalTags = document.getElementById('modalTags');
+    const modalDownloadBtn = document.getElementById('modalDownloadBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const closeModalBtn = document.getElementById('closeModal');
+
+    // Login Page Elements
+    const mainWrapper = document.getElementById('main-wrapper');
+    const loginPageContainer = document.getElementById('loginPageContainer');
+    const loginFormContainer = document.getElementById('login-form-container');
+    const signupFormContainer = document.getElementById('signup-form-container');
+    const showSignupBtn = document.getElementById('showSignup');
+    const showLoginBtn = document.getElementById('showLogin');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const authMessage = document.getElementById('authMessage');
+
+    // Theme Elements
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    // App State
+    let currentPage = 1;
+    let currentQuery = 'Minimal';
+    let isFetching = false;
+    let currentModalPhoto = null;
+
+    // --- TOAST NOTIFICATION ---
+    function showToast(message, type = 'success') {
+        const toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.addEventListener('transitionend', () => toast.remove());
+        }, 3000);
+    }
+
+    // --- FIREBASE AUTHENTICATION LOGIC ---
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is signed in
+            userProfile.style.display = 'block';
+            userImg.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=random`;
+            authBtn.style.display = 'none';
+            userProfile.style.display = 'block';
+
+            // Hide login page and show main content
+            loginPageContainer.style.display = 'none';
+            mainWrapper.style.display = '';
+        } else {
+            // User is signed out
+            authBtn.textContent = '👤 Sign In';
+            authBtn.style.display = 'block';
+            userProfile.style.display = 'none';
+        }
+    });
+
+    function showAuthMessage(message, isError = true) {
+        authMessage.textContent = message;
+        authMessage.className = isError ? 'error' : 'success';
+        authMessage.style.display = 'block';
+    }
+
+    function hideAuthMessage() {
+        authMessage.style.display = 'none';
+    }
+
+    const handleAuth = () => {
+        if (auth.currentUser) {
+            signOut(auth);
+        } else {
+            // Show the custom login page
+            mainWrapper.style.display = 'none';
+            loginPageContainer.style.display = 'flex';
+            loginFormContainer.style.display = 'block';
+            signupFormContainer.style.display = 'none';
+            hideAuthMessage();
+        }
+    };
+
+    // --- FORM TOGGLING ---
+    showSignupBtn.addEventListener('click', () => {
+        loginFormContainer.style.display = 'none';
+        signupFormContainer.style.display = 'block';
+        hideAuthMessage();
+    });
+
+    showLoginBtn.addEventListener('click', () => {
+        signupFormContainer.style.display = 'none';
+        loginFormContainer.style.display = 'block';
+        hideAuthMessage();
+    });
+
+    // --- FORM SUBMISSION HANDLERS ---
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then(() => {
+                showToast("Welcome back!");
+            })
+            .catch(error => {
+                let message = "An error occurred. Please try again.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    message = "Invalid email or password.";
+                }
+                showAuthMessage(message);
+            });
+    });
+
+    signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+
+        if (password.length < 6) {
+            showAuthMessage("Password should be at least 6 characters.");
+            return;
+        }
+
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(() => {
+                showToast("Account created successfully!");
+            })
+            .catch(error => {
+                let message = "An error occurred. Please try again.";
+                if (error.code === 'auth/email-already-in-use') {
+                    message = "An account with this email already exists.";
+                } else if (error.code === 'auth/invalid-email') {
+                    message = "Please enter a valid email address.";
+                }
+                showAuthMessage(message);
+            });
+    });
 
 
-    <!-- Image Preview Modal -->
-    <div id="imageModal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center p-4 z-50 hidden opacity-0">
-        <div id="modalContent" class="modal-content bg-gray-900 rounded-lg max-w-4xl max-h-full overflow-auto relative">
-            <img id="modalImage" src="" alt="Wallpaper Preview" class="max-w-full max-h-[80vh] object-contain rounded-t-lg">
-            <div class="p-6">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div>
-                         <p class="text-white font-semibold text-lg">Photographer: <span id="photographerName" class="font-normal text-gray-300"></span></p>
-                         <p id="imageResolution" class="text-sm text-gray-400"></p>
-                    </div>
-                    <div id="downloadOptions" class="flex flex-col sm:flex-row gap-2">
-                        <!-- Download buttons will be added here by JS -->
-                    </div>
+    authBtn.addEventListener('click', handleAuth);
+
+    // Profile Dropdown Logic
+    userProfile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        signOut(auth);
+        profileDropdown.style.display = 'none';
+        showToast("You have been logged out.");
+    });
+
+    window.addEventListener('click', () => {
+        if (profileDropdown.style.display === 'block') {
+            profileDropdown.style.display = 'none';
+        }
+    });
+
+    // --- API & SEARCH FUNCTIONS ---
+
+    const performSearch = () => {
+        const query = searchInput.value.trim();
+        if (query) {
+            currentPage = 1;
+            currentQuery = query;
+            fetchWallpapers(currentQuery, currentPage, 40, false);
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
+        }
+    };
+
+    async function fetchWallpapers(query, page, perPage = 40, append = false) {
+        if (API_KEY === 'YOUR_PEXELS_API_KEY' || !API_KEY) {
+            gallery.innerHTML = `<p style="text-align: center; color: #ffb8b8; padding: 20px;"><b>Action Required:</b> Please get a free API key from Pexels.com and add it to the JavaScript code to see the wallpapers.</p>`;
+            loader.style.display = 'none';
+            return;
+        }
+
+        if (isFetching) return;
+        isFetching = true;
+        loader.style.display = 'block';
+
+        try {
+            const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}`;
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: API_KEY
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                   gallery.innerHTML = `<p style="text-align: center; color: #ffb8b8;">Authentication failed. Your API key appears to be invalid. Please check it.</p>`;
+                } else {
+                   throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return;
+            }
+
+            const data = await response.json();
+            displayWallpapers(data.photos, append);
+
+
+        } catch (error) {
+            console.error("Error fetching wallpapers:", error);
+            gallery.innerHTML = `<p style="text-align: center; color: #ffb8b8;">Could not fetch wallpapers. This might be a network issue. Please check your connection and try again.</p>`;
+        } finally {
+            isFetching = false;
+            loader.style.display = 'none';
+        }
+    }
+
+    async function fetchPhotoById(id) {
+        showToast("Loading shared wallpaper...", "info");
+        loader.style.display = 'block';
+        try {
+            const url = `https://api.pexels.com/v1/photos/${id}`;
+            const response = await fetch(url, { headers: { Authorization: API_KEY } });
+            if (!response.ok) throw new Error("Photo not found");
+            const photo = await response.json();
+            currentQuery = 'shared'; // Set a context for the modal
+            showModal(photo);
+        } catch (error) {
+            console.error("Error fetching shared photo:", error);
+            showToast("Could not load the shared wallpaper.", "error");
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+
+    // --- DISPLAY FUNCTIONS ---
+
+    function displayWallpapers(photos, append = false) {
+        if (!append) {
+            gallery.innerHTML = '';
+        }
+
+        if (photos.length === 0 && !append) {
+            gallery.innerHTML = `<p style="text-align: center;">No results found for "${currentQuery}".</p>`;
+            return;
+        }
+
+        photos.forEach(photo => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
+            item.dataset.photo = JSON.stringify(photo);
+
+            item.innerHTML = `
+                <img src="${photo.src.large}" alt="${photo.alt || 'Wallpaper'}" loading="lazy">
+                <div class="overlay">
+                    <p>${photo.photographer}</p>
                 </div>
-            </div>
-        </div>
-        <button id="closeModal" class="absolute top-4 right-4 text-white bg-gray-800 rounded-full p-2 hover:bg-gray-700 transition-colors">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-    </div>
+            `;
+            gallery.appendChild(item);
+        });
+    }
 
-    <!-- Login/Signup Modal -->
-    <div id="authModal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center p-4 z-50 hidden opacity-0">
-        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg max-w-sm w-full relative overflow-hidden">
-            <div class="p-8">
-                <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
-                    <button id="loginTab" class="flex-1 py-2 font-semibold text-indigo-600 border-b-2 border-indigo-600">Login</button>
-                    <button id="signupTab" class="flex-1 py-2 font-semibold text-gray-500 dark:text-gray-400">Sign Up</button>
-                </div>
-                <div class="relative h-[420px]">
-                    <!-- Login Form -->
-                    <form id="loginForm" class="absolute top-0 left-0 w-full">
-                        <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">Welcome Back!</h2>
-                        <p class="text-center text-gray-600 dark:text-gray-400 mb-4">Login to continue.</p>
-                        <div class="mb-4">
-                            <label for="loginEmail" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Email</label>
-                            <input type="email" id="loginEmail" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
-                        </div>
-                        <div class="mb-4">
-                            <label for="loginPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Password</label>
-                            <input type="password" id="loginPassword" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
-                        </div>
-                        <div class="text-right mb-4">
-                            <a href="#" id="forgotPasswordLink" class="text-sm text-indigo-600 hover:underline dark:text-indigo-400">Forgot Password?</a>
-                        </div>
-                        <p id="loginError" class="text-red-500 text-sm text-center mb-4 min-h-[20px]"></p>
-                        <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">Login</button>
-                    </form>
+    // --- MODAL FUNCTIONS ---
 
-                    <!-- Signup Form -->
-                    <form id="signupForm" class="absolute top-0 left-0 w-full hidden">
-                        <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">Create Account</h2>
-                        <p class="text-center text-gray-600 dark:text-gray-400 mb-4">Sign up to download wallpapers.</p>
-                        <div class="mb-4">
-                            <label for="signupEmail" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Email</label>
-                            <input type="email" id="signupEmail" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
-                        </div>
-                        <div class="mb-4">
-                            <label for="signupPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Password</label>
-                            <input type="password" id="signupPassword" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
-                        </div>
-                        <div class="mb-4">
-                            <label for="confirmPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Confirm Password</label>
-                            <input type="password" id="confirmPassword" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
-                        </div>
-                        <p id="signupError" class="text-red-500 text-sm text-center mb-4 min-h-[20px]"></p>
-                        <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">Sign Up</button>
-                    </form>
-                     <!-- Forgot Password Form -->
-                    <form id="forgotPasswordForm" class="absolute top-0 left-0 w-full hidden">
-                        <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">Reset Password</h2>
-                        <p class="text-center text-gray-600 dark:text-gray-400 mb-4">Enter your email to get a reset link.</p>
-                        <div class="mb-4">
-                            <label for="resetEmail" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Email</label>
-                            <input type="email" id="resetEmail" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
-                        </div>
-                        <p id="resetStatus" class="text-sm text-center mb-4 min-h-[20px]"></p>
-                        <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Send Reset Link</button>
-                        <div class="text-center mt-4">
-                            <a href="#" id="backToLoginLink" class="text-sm text-indigo-600 hover:underline dark:text-indigo-400">&larr; Back to Login</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <button id="closeAuthModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-            </button>
-        </div>
-    </div>
+    async function showModal(photo) {
+        // Part 1: Immediately display the modal with all available info
+        currentModalPhoto = photo;
+        modalImage.src = photo.src.large2x;
+        modalTitle.innerHTML = `${photo.alt || 'Untitled Wallpaper'} <span class="badge">🔥 Trending</span>`;
+        modalPhotographer.textContent = `Photo by ${photo.photographer}`;
+        modalDownloads.textContent = `⬇️ ${(Math.floor(Math.random() * 1500) + 500).toLocaleString()} downloads`;
+        modalViews.textContent = `👁️ ${(Math.floor(Math.random() * 8000) + 2000).toLocaleString()} views`;
+        modalCategory.textContent = currentQuery;
 
-    <!-- Back to Top Button -->
-    <button id="backToTopBtn" class="fixed bottom-5 right-5 bg-indigo-600 text-white p-3 rounded-full shadow-lg opacity-0 transform translate-y-5 transition-all duration-300 z-50">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
-    </button>
+        const date = new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 30);
+        modalDate.textContent = date.toLocaleDateString();
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import {
-            getAuth,
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            onAuthStateChanged,
-            signOut,
-            sendPasswordResetEmail
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        modalTags.innerHTML = '';
+        const tags = photo.alt.split(' ').filter(tag => tag.length > 3 && isNaN(tag));
+        tags.slice(0, 5).forEach(tag => {
+            const span = document.createElement('span');
+            span.textContent = `#${tag.toLowerCase().replace(/[^a-z0-9]/gi, '')}`;
+            modalTags.appendChild(span);
+        });
+        if (tags.length === 0) {
+            const span = document.createElement('span');
+            span.textContent = `#${currentQuery.toLowerCase()}`;
+            modalTags.appendChild(span);
+        }
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyBAD1l6mk3yMMPv_AjMzWCpZwSvb_s97ao",
-          authDomain: "logicloop-wallpaper-downloder.firebaseapp.com",
-          projectId: "logicloop-wallpaper-downloder",
-          storageBucket: "logicloop-wallpaper-downloder.appspot.com",
-          messagingSenderId: "670399435605",
-          appId: "1:670399435605:web:f1da29e0d6fc0b04a455dc",
-          measurementId: "G-ZM4NPNLYWC"
+        // Show the modal to the user
+        modalOverlay.classList.add('show');
+    }
+
+    function hideModal() {
+        modalOverlay.classList.remove('show');
+        currentModalPhoto = null;
+    }
+
+    // --- MODAL ACTIONS ---
+
+    async function handleDownload() {
+        if (!auth.currentUser) {
+            showToast("Please log in to download wallpapers.", "info");
+            return;
+        }
+
+        if (!currentModalPhoto) return;
+        showToast("Download starting...", "info");
+        try {
+            const response = await fetch(currentModalPhoto.src.original);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `${currentModalPhoto.photographer}-${currentModalPhoto.id}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        } catch (error) {
+            console.error('Download error:', error);
+            showToast("Download failed.", "error");
+        }
+    }
+
+    function handleShare() {
+        if (!currentModalPhoto) return;
+        const shareUrl = `${window.location.origin}${window.location.pathname}?photoId=${currentModalPhoto.id}`;
+        const shareData = {
+            title: `Wallpaper by ${currentModalPhoto.photographer}`,
+            text: `Check out this amazing wallpaper from LogicLoop WallpaperHub!`,
+            url: shareUrl,
         };
 
-        // Initialize Firebase
-        try {
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-
-            window.firebaseAuth = {
-                auth,
-                createUserWithEmailAndPassword,
-                signInWithEmailAndPassword,
-                onAuthStateChanged,
-                signOut,
-                sendPasswordResetEmail
-            };
-        } catch (error) {
-            console.error("Firebase initialization failed:", error);
-            // Display an error message to the user on the page
-            const gallery = document.getElementById('gallery');
-            if (gallery) {
-                gallery.innerHTML = `<div class="col-span-full text-center p-4 bg-red-100 text-red-700 rounded-lg">
-                    <h3 class="font-bold">Firebase Error</h3>
-                    <p>Could not connect to Firebase. Please check your configuration and API key.</p>
-                </div>`;
-            }
+        if (navigator.share) {
+            navigator.share(shareData).catch((err) => console.error("Share failed:", err));
+        } else {
+            // Fallback: Copy link
+            navigator.clipboard.writeText(shareData.url).then(() => {
+                showToast("Link copied to clipboard!", "info");
+            });
         }
-    </script>
+    }
 
-
-    <script>
-        // Tailwind custom classes for category buttons
-        tailwind.config = {
-            darkMode: 'class', // Enable dark mode based on class
-            theme: {
-                extend: {
-                    // you can add custom theme configurations here
-                }
-            }
+    // --- THEME TOGGLE ---
+    const applyTheme = (theme) => {
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+            themeToggleBtn.textContent = '☀️';
+        } else {
+            document.body.classList.remove('light-theme');
+            themeToggleBtn.textContent = '🌙';
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Theme Toggle Logic ---
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-            const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
-
-            // Check for saved theme in localStorage and apply it
-            if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                themeToggleLightIcon.classList.remove('hidden');
-            } else {
-                document.documentElement.classList.remove('dark');
-                themeToggleDarkIcon.classList.remove('hidden');
-            }
-
-            themeToggleBtn.addEventListener('click', function() {
-                // toggle icons
-                themeToggleDarkIcon.classList.toggle('hidden');
-                themeToggleLightIcon.classList.toggle('hidden');
-
-                // if set via local storage previously
-                if (localStorage.getItem('color-theme')) {
-                    if (localStorage.getItem('color-theme') === 'light') {
-                        document.documentElement.classList.add('dark');
-                        localStorage.setItem('color-theme', 'dark');
-                    } else {
-                        document.documentElement.classList.remove('dark');
-                        localStorage.setItem('color-theme', 'light');
-                    }
-                // if NOT set via local storage previously
-                } else {
-                    if (document.documentElement.classList.contains('dark')) {
-                        document.documentElement.classList.remove('dark');
-                        localStorage.setItem('color-theme', 'light');
-                    } else {
-                        document.documentElement.classList.add('dark');
-                        localStorage.setItem('color-theme', 'dark');
-                    }
-                }
-            });
-
-
-            // --- Wallpaper App Logic ---
-            const PEXELS_API_KEY = 'ytT8SGMXQS6IeAMtOljpbiB5PP8KC9SMlVznZuc3qyB7NIx1im6j1Rty';
-
-            // --- DOM Elements ---
-            const gallery = document.getElementById('gallery');
-            const searchInput = document.getElementById('searchInput');
-            const loader = document.getElementById('loader');
-            const modal = document.getElementById('imageModal');
-            const modalImage = document.getElementById('modalImage');
-            const photographerName = document.getElementById('photographerName');
-            const imageResolution = document.getElementById('imageResolution');
-            const downloadOptions = document.getElementById('downloadOptions');
-            const closeModal = document.getElementById('closeModal');
-            const categoryFilters = document.getElementById('categoryFilters');
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            const authModal = document.getElementById('authModal');
-            const closeAuthModal = document.getElementById('closeAuthModal');
-            const loginForm = document.getElementById('loginForm');
-            const signupForm = document.getElementById('signupForm');
-            const loginError = document.getElementById('loginError');
-            const signupError = document.getElementById('signupError');
-            const loginTab = document.getElementById('loginTab');
-            const signupTab = document.getElementById('signupTab');
-            const userInfo = document.getElementById('userInfo');
-            const userAvatar = document.getElementById('userAvatar');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const authButtons = document.getElementById('authButtons');
-            const navLoginBtn = document.getElementById('navLoginBtn');
-            const navSignupBtn = document.getElementById('navSignupBtn');
-            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-            const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-            const backToLoginLink = document.getElementById('backToLoginLink');
-            const resetStatus = document.getElementById('resetStatus');
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            const backToTopBtn = document.getElementById('backToTopBtn');
-
-            // --- State variables ---
-            let currentPage = 1;
-            let currentQuery = '';
-            let isFetching = false;
-            let photoToDownload = null;
-            let currentUser = null;
-            const initialQueries = ['Nature', 'Technology', 'Abstract', 'Space', 'Animals', 'Minimalist', 'Cars', 'Travel', 'Cityscape', 'Ocean', 'Flowers', 'Dark'];
-
-
-            // --- API Functions ---
-            const fetchWallpapers = async (query, isLoadMore = false) => {
-                if (isFetching) return;
-                if (!PEXELS_API_KEY) {
-                    displayApiKeyError();
-                    return;
-                }
-
-                isFetching = true;
-                loader.classList.remove('hidden');
-                loadMoreBtn.classList.add('hidden');
-
-                if (!isLoadMore) {
-                    currentPage = 1;
-                    gallery.innerHTML = '';
-                    currentQuery = query;
-                } else {
-                    currentPage++;
-                }
-
-                const url = `https://api.pexels.com/v1/search?query=${currentQuery}&per_page=40&page=${currentPage}`;
-
-                try {
-                    const response = await fetch(url, { headers: { Authorization: PEXELS_API_KEY } });
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    const data = await response.json();
-                    displayWallpapers(data.photos, isLoadMore);
-
-                    if (data.next_page) {
-                        loadMoreBtn.classList.remove('hidden');
-                    } else {
-                        loadMoreBtn.classList.add('hidden');
-                    }
-                } catch (error) {
-                    console.error("Error fetching wallpapers:", error);
-                    displayGenericError();
-                } finally {
-                    loader.classList.add('hidden');
-                    isFetching = false;
-                }
-            };
-
-            const fetchCategories = async () => {
-                const url = `https://api.pexels.com/v1/collections/featured?per_page=8`;
-                try {
-                    const response = await fetch(url, { headers: { Authorization: PEXELS_API_KEY } });
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    const data = await response.json();
-                    displayCategories(data.collections);
-                } catch (error) {
-                    console.error("Error fetching categories:", error);
-                    categoryFilters.innerHTML = `<p class="text-gray-500 dark:text-gray-400">Could not load categories.</p>`;
-                }
-            };
-
-            // --- Display Functions ---
-            const displayCategories = (collections) => {
-                categoryFilters.innerHTML = '';
-                const allButton = document.createElement('button');
-                allButton.className = 'category-btn active';
-                allButton.textContent = 'All';
-                categoryFilters.appendChild(allButton);
-
-                collections.forEach(collection => {
-                    if (collection.title) {
-                        const categoryButton = document.createElement('button');
-                        categoryButton.className = 'category-btn';
-                        categoryButton.textContent = collection.title;
-                        categoryFilters.appendChild(categoryButton);
-                    }
-                });
-            };
-
-            const displayWallpapers = (photos, append = false) => {
-                if (photos.length === 0 && !append) {
-                    gallery.innerHTML = `<div class="col-span-full text-center text-gray-500 dark:text-gray-400">
-                        <p>No results found for "${currentQuery}".</p>
-                        <p class="mt-2">Try searching for: Nature, Technology, or Animals.</p>
-                    </div>`;
-                    return;
-                }
-
-                if (!append) {
-                    gallery.innerHTML = '';
-                }
-
-                photos.forEach((photo, index) => {
-                    const wallpaperCard = document.createElement('div');
-                    wallpaperCard.className = 'animate-pop-in group relative overflow-hidden rounded-lg cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 bg-gray-200 dark:bg-gray-800';
-                    wallpaperCard.style.animationDelay = `${index * 60}ms`;
-
-                    wallpaperCard.innerHTML = `
-                        <img loading="lazy" src="${photo.src.medium}" alt="${photo.alt || 'Wallpaper'}" class="w-full h-full object-cover transform group-hover:scale-110 group-hover:brightness-75 transition-all duration-500">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                        <div class="absolute bottom-0 left-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <p class="text-white font-medium truncate">${photo.photographer}</p>
-                        </div>
-                    `;
-
-                    wallpaperCard.addEventListener('click', () => openModal(photo));
-                    gallery.appendChild(wallpaperCard);
-                });
-            };
-
-            const displayApiKeyError = () => {
-                gallery.innerHTML = `
-                    <div class="col-span-full text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg dark:bg-red-900/50 dark:border-red-700 dark:text-red-300">
-                        <h3 class="font-bold text-lg">API Key Missing or Invalid!</h3>
-                        <p>Please check your Pexels API key in the JavaScript code.</p>
-                    </div>`;
-            };
-
-            const displayGenericError = () => {
-                 gallery.innerHTML = `
-                    <div class="col-span-full text-center bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg dark:bg-yellow-900/50 dark:border-yellow-700 dark:text-yellow-300">
-                        <h3 class="font-bold text-lg">Something went wrong!</h3>
-                        <p>Could not fetch wallpapers. Please try again later.</p>
-                    </div>`;
-            }
-
-            // --- Modal and Download Functions ---
-            const forceDownload = async (url, fileName, buttonElement) => {
-                const originalButtonContent = buttonElement.innerHTML;
-                buttonElement.disabled = true;
-                buttonElement.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
-
-                try {
-                    const response = await fetch(url);
-                    const blob = await response.blob();
-                    const blobUrl = window.URL.createObjectURL(blob);
-
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = blobUrl;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(blobUrl);
-                } catch (error) {
-                    console.error('Download failed:', error);
-                    showToast('Download could not be completed.', false);
-                } finally {
-                    buttonElement.disabled = false;
-                    buttonElement.innerHTML = originalButtonContent;
-                }
-            };
-
-            const openModal = (photo) => {
-                modalImage.src = photo.src.large2x;
-                photographerName.textContent = photo.photographer;
-                imageResolution.textContent = `Resolution: ${photo.width} x ${photo.height}`;
-
-                photoToDownload = photo;
-
-                downloadOptions.innerHTML = ''; // Clear previous options
-
-                const sizes = {
-                    'Medium': photo.src.medium,
-                    'Large': photo.src.large,
-                    'Original': photo.src.original
-                };
-
-                for (const [size, url] of Object.entries(sizes)) {
-                    const button = document.createElement('button');
-                    button.className = 'inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105';
-                    button.innerHTML = `<svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> <span>${size}</span>`;
-
-                    button.onclick = (event) => {
-                        if (currentUser) {
-                            const fileName = `${photo.photographer.replace(/\s+/g, '-')}-${photo.id}-${size.toLowerCase()}.jpeg`;
-                            forceDownload(url, fileName, event.currentTarget);
-                        } else {
-                            openAuthModal();
-                        }
-                    };
-                    downloadOptions.appendChild(button);
-                }
-
-                modal.classList.remove('hidden');
-                setTimeout(() => modal.classList.remove('opacity-0'), 10);
-            };
-
-            const closeTheModal = () => {
-                modal.classList.add('opacity-0');
-                setTimeout(() => modal.classList.add('hidden'), 300);
-            };
-
-            const openAuthModal = () => {
-                authModal.classList.remove('hidden');
-                setTimeout(() => authModal.classList.remove('opacity-0'), 10);
-            };
-
-            const closeTheAuthModal = () => {
-                authModal.classList.add('opacity-0');
-                setTimeout(() => authModal.classList.add('hidden'), 300);
-            };
-
-            const showToast = (message, isSuccess = true) => {
-                toastMessage.textContent = message;
-                toast.classList.remove('bg-red-500', 'bg-green-500');
-                toast.classList.add(isSuccess ? 'bg-green-500' : 'bg-red-500');
-
-                toast.classList.remove('opacity-0', '-translate-y-5');
-                toast.classList.add('opacity-100', 'translate-y-0');
-
-                setTimeout(() => {
-                    toast.classList.remove('opacity-100', 'translate-y-0');
-                    toast.classList.add('opacity-0', '-translate-y-5');
-                }, 5000); // Hide after 5 seconds
-            };
-
-            // --- Firebase Auth Logic ---
-            if (window.firebaseAuth) {
-                const { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } = window.firebaseAuth;
-
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUser = user;
-                        userInfo.classList.remove('hidden');
-                        userInfo.classList.add('flex');
-                        authButtons.classList.add('hidden');
-
-                        userAvatar.innerHTML = ''; // Clear previous content
-                        const initial = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
-
-                        if (user.photoURL) {
-                            userAvatar.innerHTML = `<img src="${user.photoURL}" alt="${initial}" class="w-full h-full rounded-full object-cover">`;
-                        } else {
-                            userAvatar.textContent = initial;
-                        }
-
-                    } else {
-                        currentUser = null;
-                        userInfo.classList.add('hidden');
-                        userInfo.classList.remove('flex');
-                        authButtons.classList.remove('hidden');
-                        userAvatar.innerHTML = ''; // Clear avatar content
-                    }
-                });
-
-                const handleAuthError = (error, errorElement) => {
-                    let message = "An unknown error occurred.";
-                    switch (error.code) {
-                        case 'auth/invalid-credential':
-                            message = "Invalid email or password. Please try again.";
-                            break;
-                        case 'auth/user-not-found':
-                            message = "No account found with this email.";
-                            break;
-                        case 'auth/wrong-password':
-                             message = "Incorrect password. Please try again.";
-                             break;
-                        case 'auth/email-already-in-use':
-                            message = "User already exists with this email.";
-                            break;
-                        case 'auth/weak-password':
-                            message = "Password is too weak (at least 6 characters).";
-                            break;
-                        case 'auth/invalid-email':
-                            message = "Invalid email address.";
-                            break;
-                        case 'auth/popup-closed-by-user':
-                            return; // Don't show an error if user closes popup
-                        default:
-                            console.error("Authentication Error:", error);
-                            message = "Something went wrong. Please try again.";
-                            break;
-                    }
-                    errorElement.textContent = message;
-                    errorElement.classList.remove('hidden');
-                };
-
-                loginForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const email = loginForm.loginEmail.value;
-                    const password = loginForm.loginPassword.value;
-                    loginError.textContent = '';
-                    loginError.classList.add('hidden');
-
-                    signInWithEmailAndPassword(auth, email, password)
-                        .then((userCredential) => {
-                            loginForm.reset();
-                            closeTheAuthModal();
-                            showToast('Login Successful!');
-                        })
-                        .catch((error) => {
-                            handleAuthError(error, loginError);
-                        });
-                });
-
-                signupForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const email = signupForm.signupEmail.value;
-                    const password = signupForm.signupPassword.value;
-                    const confirmPassword = signupForm.confirmPassword.value;
-                    signupError.textContent = '';
-                    signupError.classList.add('hidden');
-
-                    if (password !== confirmPassword) {
-                        signupError.textContent = "Passwords do not match.";
-                        signupError.classList.remove('hidden');
-                        return;
-                    }
-
-                    createUserWithEmailAndPassword(auth, email, password)
-                        .then((userCredential) => {
-                            signupForm.reset();
-                            closeTheAuthModal();
-                            showToast('Sign Up Successful!');
-                        })
-                        .catch((error) => {
-                            handleAuthError(error, signupError);
-                        });
-                });
-
-                forgotPasswordForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const email = forgotPasswordForm.resetEmail.value;
-                    resetStatus.textContent = '';
-                    resetStatus.classList.remove('text-red-500', 'text-green-500');
-
-                    sendPasswordResetEmail(auth, email)
-                        .then(() => {
-                            closeTheAuthModal();
-                            showToast('Reset link sent! Please check your spam folder.');
-                        })
-                        .catch((error) => {
-                            handleAuthError(error, resetStatus);
-                            resetStatus.classList.add('text-red-500');
-                        });
-                });
-
-
-                logoutBtn.addEventListener('click', () => {
-                    signOut(auth).then(() => {
-                        showToast('You have been logged out.');
-                    }).catch((error) => {
-                        console.error('Sign out error', error);
-                        showToast('Could not log out.', false);
-                    });
-                });
-            }
-
-
-            // --- Auth Modal Tabs ---
-            const showLoginTab = () => {
-                loginForm.classList.remove('hidden');
-                signupForm.classList.add('hidden');
-                forgotPasswordForm.classList.add('hidden');
-                loginTab.classList.add('text-indigo-600', 'border-indigo-600');
-                loginTab.classList.remove('text-gray-500', 'dark:text-gray-400');
-                signupTab.classList.remove('text-indigo-600', 'border-indigo-600');
-                signupTab.classList.add('text-gray-500', 'dark:text-gray-400');
-                signupForm.reset();
-                signupError.textContent = '';
-                signupError.classList.add('hidden');
-                forgotPasswordForm.reset();
-                resetStatus.textContent = '';
-            };
-
-            const showSignupTab = () => {
-                signupForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
-                forgotPasswordForm.classList.add('hidden');
-                signupTab.classList.add('text-indigo-600', 'border-indigo-600');
-                signupTab.classList.remove('text-gray-500', 'dark:text-gray-400');
-                loginTab.classList.remove('text-indigo-600', 'border-indigo-600');
-                loginTab.classList.add('text-gray-500', 'dark:text-gray-400');
-                loginForm.reset();
-                loginError.textContent = '';
-                loginError.classList.add('hidden');
-                forgotPasswordForm.reset();
-                resetStatus.textContent = '';
-            };
-
-            loginTab.addEventListener('click', showLoginTab);
-            signupTab.addEventListener('click', showSignupTab);
-
-            navLoginBtn.addEventListener('click', () => {
-                openAuthModal();
-                showLoginTab();
-            });
-
-            navSignupBtn.addEventListener('click', () => {
-                openAuthModal();
-                showSignupTab();
-            });
-
-             forgotPasswordLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                loginForm.classList.add('hidden');
-                signupForm.classList.add('hidden');
-                forgotPasswordForm.classList.remove('hidden');
-            });
-
-            backToLoginLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                showLoginTab();
-            });
-
-
-
-            // --- Event Listeners ---
-            let searchTimeout;
-            searchInput.addEventListener('input', () => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    const query = searchInput.value.trim();
-                    if (query) {
-                        fetchWallpapers(query, false);
-                        document.querySelector('.category-btn.active')?.classList.remove('active');
-                    } else {
-                         // If search is cleared, go back to the active category or default
-                        const activeCategory = document.querySelector('.category-btn.active');
-                        if(activeCategory) {
-                             activeCategory.click();
-                        } else {
-                             fetchWallpapers('Trending');
-                        }
-                    }
-                }, 500);
-            });
-
-            categoryFilters.addEventListener('click', (e) => {
-                if (e.target.classList.contains('category-btn')) {
-                    document.querySelector('.category-btn.active')?.classList.remove('active');
-                    e.target.classList.add('active');
-                    const category = e.target.textContent;
-                    fetchWallpapers(category === 'All' ? 'Trending' : category, false);
-                    searchInput.value = '';
-                }
-            });
-
-            loadMoreBtn.addEventListener('click', () => {
-                fetchWallpapers(currentQuery, true);
-            });
-
-            closeModal.addEventListener('click', closeTheModal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeTheModal();
-            });
-
-            closeAuthModal.addEventListener('click', closeTheAuthModal);
-            authModal.addEventListener('click', (e) => {
-                if (e.target === authModal) closeTheAuthModal();
-            });
-
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 400) {
-                    backToTopBtn.classList.remove('opacity-0', 'translate-y-5');
-                } else {
-                    backToTopBtn.classList.add('opacity-0', 'translate-y-5');
-                }
-            });
-
-            backToTopBtn.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
-            // --- Initial Load ---
-            const initializeApp = async () => {
-                await fetchCategories();
-                const randomQuery = initialQueries[Math.floor(Math.random() * initialQueries.length)];
-                fetchWallpapers(randomQuery);
-            };
-
-            initializeApp();
+    };
+
+    const toggleTheme = () => {
+        const isLight = document.body.classList.contains('light-theme');
+        const newTheme = isLight ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+    };
+
+    // --- EVENT HANDLERS ---
+
+    function handleSearchKey(e) {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    }
+
+    function handleCategoryClick(e) {
+        const clickedButton = e.target.closest('button');
+        if (!clickedButton) return;
+
+        categoryButtons.forEach(btn => btn.classList.remove('active'));
+        clickedButton.classList.add('active');
+        currentPage = 1;
+        currentQuery = clickedButton.dataset.query;
+        fetchWallpapers(currentQuery, currentPage, 40, false);
+    }
+
+    function handleGalleryClick(e) {
+        const item = e.target.closest('.gallery-item');
+        if (item && item.dataset.photo) {
+            const photoData = JSON.parse(item.dataset.photo);
+            showModal(photoData);
+        }
+    }
+
+    // --- EVENT LISTENERS ---
+
+    searchInput.addEventListener('keydown', handleSearchKey);
+    searchBtn.addEventListener('click', performSearch);
+    themeToggleBtn.addEventListener('click', toggleTheme);
+    document.querySelector('.categories').addEventListener('click', handleCategoryClick);
+    gallery.addEventListener('click', handleGalleryClick);
+    closeModalBtn.addEventListener('click', hideModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay')) {
+            hideModal();
+        }
+    });
+    modalDownloadBtn.addEventListener('click', handleDownload);
+    shareBtn.addEventListener('click', handleShare);
+
+    // --- Infinite Scroll ---
+    window.addEventListener('scroll', () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && !isFetching) {
+            currentPage++;
+            fetchWallpapers(currentQuery, currentPage, 40, true);
+        }
+    });
+
+    // --- INITIAL LOAD ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Apply saved theme on load
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+
+        // Handle staggered animations for initial elements
+        const heroFeatures = document.querySelectorAll('.hero-features div');
+        heroFeatures.forEach((feature, index) => {
+            feature.style.animationDelay = `${0.4 + index * 0.1}s`;
         });
-    </script>
-    <style>
-        .category-btn {
-            padding: 0.5rem 1.25rem;
-            border-radius: 9999px;
-            font-weight: 500;
-            background-color: #E5E7EB;
-            color: #4B5563;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+
+        const categoryButtons = document.querySelectorAll('.categories button');
+        categoryButtons.forEach((button, index) => {
+            button.style.animationDelay = `${0.6 + index * 0.05}s`;
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const photoId = urlParams.get('photoId');
+
+        if (photoId) {
+            fetchPhotoById(photoId);
         }
-        .dark .category-btn {
-            background-color: #374151;
-            color: #D1D5DB;
-            box-shadow: none;
-        }
-        .category-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.12);
-        }
-        .dark .category-btn:hover {
-            background-color: #4B5563;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
-        }
-        .category-btn.active {
-            background-color: #4F46E5;
-            color: white;
-            box-shadow: 0 4px 10px 0 rgba(79, 70, 229, 0.4);
-        }
-        .dark .category-btn.active {
-            background-color: #4F46E5;
-            color: white;
-            box-shadow: 0 4px 10px 0 rgba(79, 70, 229, 0.5);
-        }
-    </style>
+
+        // Initial fetch for the gallery
+        currentPage = 1;
+        fetchWallpapers(currentQuery, currentPage, 40, false);
+    });
+
+</script>
 
 </body>
 </html>
+
 
