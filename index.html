@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
     /* RESET */
     :root {
@@ -167,10 +168,10 @@
       gap: 12px;
     }
     .icon-btn {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       background: var(--bg-primary);
-      border-radius: 8px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -204,8 +205,8 @@
         position: relative;
     }
     #userProfile img {
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         cursor: pointer;
         transition: transform 0.3s ease, box-shadow 0.3s;
@@ -217,7 +218,7 @@
 
     .profile-dropdown {
         position: absolute;
-        top: 50px;
+        top: 55px;
         right: 0;
         background-color: var(--bg-secondary);
         border-radius: 8px;
@@ -1050,7 +1051,7 @@
                 Remembered your password? <button id="backToLogin">Back to Log In</button>
             </div>
             <div class="contact-info">
-              <p class="contact-info-title">Helpline</p>
+              <p class="contact-info-title">Helpline Number</p>
               <p>Contact: <a href="tel:7775983924">7775983924</a></p>
               <p>Email: <a href="mailto:kaleom5757@gmail.com">kaleom5757@gmail.com</a></p>
             </div>
@@ -1156,6 +1157,22 @@
         }, 3000);
     }
 
+    // --- EMAILJS INTEGRATION ---
+    (function() {
+      emailjs.init("bnl1jpC9CP9LeNk3n");
+    })();
+
+    function sendWelcomeEmail(userName, userEmail) {
+      emailjs.send("service_vzshuyb", "template_vqx0vj9", {
+          name: userName,
+          email: userEmail
+      }).then(function(response) {
+          console.log("✅ Welcome email sent!", response.status, response.text);
+      }, function(error) {
+          console.error("❌ Failed to send email.", error);
+      });
+    }
+
     // --- FIREBASE AUTHENTICATION LOGIC ---
 
     onAuthStateChanged(auth, (user) => {
@@ -1256,8 +1273,11 @@
         }
 
         createUserWithEmailAndPassword(auth, email, password)
-            .then(() => {
+            .then((userCredential) => {
                 showToast("Account created successfully!");
+                const user = userCredential.user;
+                // Send welcome email
+                sendWelcomeEmail(user.email.split('@')[0], user.email);
             })
             .catch(error => {
                 let message = "An error occurred. Please try again.";
