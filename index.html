@@ -1044,27 +1044,23 @@
         <div id="forgot-password-container" style="display: none;">
             <h2>Reset Password</h2>
             <div id="send-otp-view">
-                <p>Enter your email to receive an OTP.</p>
+                <p>sent Reset Password Link.</p>
                 <form id="sendOtpForm" style="margin-top: 25px;">
                     <div class="form-group">
                         <label for="forgot-email">Email</label>
                         <input type="email" id="forgot-email" placeholder="name@example.com" required>
                     </div>
-                    <button type="submit" class="auth-btn">Send OTP</button>
+                    <button type="submit" class="auth-btn">Send Reset Link</button>
                 </form>
             </div>
             <div id="verify-otp-view" style="display: none;">
-                <p>An OTP has been sent to your email. Please enter it below.</p>
+                <p>An OTP has been sent. Please enter it below to get your reset link.</p>
                 <form id="verifyOtpForm" style="margin-top: 25px;">
                     <div class="form-group">
                         <label for="otp-input">OTP</label>
                         <input type="text" id="otp-input" placeholder="Enter 6-digit OTP" required>
                     </div>
-                     <div class="form-group">
-                        <label for="new-password">New Password</label>
-                        <input type="password" id="new-password" placeholder="Enter new password" required>
-                    </div>
-                    <button type="submit" class="auth-btn">Reset Password</button>
+                    <button type="submit" class="auth-btn">Verify OTP & Send Link</button>
                 </form>
             </div>
             <div class="toggle-auth">
@@ -1348,32 +1344,24 @@
     sendOtpForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('forgot-email').value;
-        // NOTE: Firebase doesn't directly support OTP-based password reset.
-        // We'll send an OTP via EmailJS for UI flow, but for actual security,
-        // Firebase's own `sendPasswordResetEmail` should be used which sends a secure link.
-        // For this demo, we are simulating the OTP flow.
-        sendOTPEmail(email);
+        sendPasswordResetEmail(auth, email)
+            .then(() => {
+                showAuthMessage("Password reset link sent to your email!", false);
+            })
+            .catch((error) => {
+                let message = "Could not send reset link. Please try again.";
+                if(error.code === 'auth/user-not-found') {
+                    message = "No account found with this email.";
+                }
+                showAuthMessage(message);
+            });
     });
 
     verifyOtpForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const enteredOtp = document.getElementById('otp-input').value;
-        const newPassword = document.getElementById('new-password').value;
-
-        if (enteredOtp === generatedOTP) {
-            // NOTE: This is where you would securely call your backend to update the password.
-            // Since we don't have a backend, we'll simulate success and send a standard Firebase reset email as a fallback.
-            sendPasswordResetEmail(auth, userEmailForReset)
-              .then(() => {
-                showAuthMessage("OTP Verified! A standard password reset link has been sent to your email as a fallback.", false);
-                setTimeout(showLoginScreen, 4000);
-              })
-              .catch(error => {
-                showAuthMessage("OTP was correct, but could not send final reset email.");
-              });
-        } else {
-            showAuthMessage("Invalid OTP. Please try again.");
-        }
+        // This form is no longer used for OTP verification directly,
+        // but keeping the logic structure in case it's needed later.
+        // The new flow is simplified to just sending the reset link.
     });
 
     authBtn.addEventListener('click', handleAuth);
@@ -1564,7 +1552,7 @@
         if (!currentModalPhoto) return;
         const shareUrl = `${window.location.origin}${window.location.pathname}?photoId=${currentModalPhoto.id}`;
         const shareData = {
-            title: `Wallpaper by ${currentModalPhoto.photographer}`,
+            title: `Wallpaper by ${photo.photographer}`,
             text: `Check out this amazing wallpaper from LogicLoop WallpaperHub!`,
             url: shareUrl,
         };
