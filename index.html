@@ -495,18 +495,6 @@
     .modal-details > div > h2 { animation-delay: 0.2s; }
     .modal-actions { animation-delay: 0.3s; }
 
-
-    .badge {
-      background: linear-gradient(90deg, #f87171, #ef4444);
-      color: #fff;
-      font-size: 0.8rem;
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin-left: 8px;
-      display: inline-block;
-      font-weight: 500;
-    }
-
     .modal-details h2 {
       font-size: 1.5rem;
       font-weight: 700;
@@ -1280,7 +1268,7 @@
     async function showModal(photo) {
         currentModalPhoto = photo;
         modalImage.src = photo.src.large2x;
-        modalTitle.innerHTML = `${photo.alt || 'Untitled Wallpaper'} <span class="badge">🔥 Trending</span>`;
+        modalTitle.textContent = photo.alt || 'Untitled Wallpaper';
         modalOverlay.classList.add('show');
     }
 
