@@ -485,14 +485,72 @@
     }
 
     .modal-details > div > h2 { animation-delay: 0.2s; }
-    .modal-actions { animation-delay: 0.3s; }
+    .modal-info-desktop { animation-delay: 0.3s; }
+    .modal-actions { animation-delay: 0.4s; }
 
     .modal-details h2 {
       font-size: 1.5rem;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 20px;
       line-height: 1.4;
       color: var(--text-primary);
+    }
+    .modal-details p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+    .stats span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .meta .category {
+      background: var(--accent-primary);
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .meta .date {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .tags-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 25px;
+    }
+    .tags span {
+      background: var(--bg-interactive);
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: var(--text-secondary);
     }
 
     .modal-actions {
@@ -637,6 +695,12 @@
       border-color: var(--accent-secondary);
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
     }
+    .forgot-password-link {
+        display: block;
+        text-align: right;
+        margin-top: 8px;
+        font-size: 0.85rem;
+    }
 
     .auth-btn {
       width: 100%;
@@ -675,6 +739,29 @@
         color: #fff;
         letter-spacing: 0.5px;
     }
+
+    .contact-info {
+        margin-top: 20px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+    .contact-info-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    .contact-info p {
+        margin-bottom: 5px;
+    }
+    .contact-info a {
+        color: var(--accent-secondary);
+        text-decoration: none;
+    }
+    .contact-info a:hover {
+        text-decoration: underline;
+    }
+
 
      #authMessage {
         margin-top: 15px;
@@ -732,8 +819,8 @@
         .desktop-search {
             display: none;
         }
-        .mobile-search-container {
-            display: block;
+        .hero-search {
+            margin-bottom: 25px;
         }
         .logo {
             font-size: 1.8rem;
@@ -765,6 +852,9 @@
         .modal-details {
             flex: 1;
             padding: 20px;
+        }
+        .modal-info-desktop {
+            display: none;
         }
         .close-modal {
             top: 10px;
@@ -871,6 +961,19 @@
       <div class="modal-details">
         <div>
           <h2 id="modalTitle"></h2>
+          <div class="modal-info-desktop">
+            <p id="modalPhotographer"></p>
+            <div class="stats">
+              <span id="modalDownloads"></span>
+              <span id="modalViews"></span>
+            </div>
+            <div class="meta">
+              <span class="category" id="modalCategory"></span>
+              <span class="date" id="modalDate"></span>
+            </div>
+            <h3 class="tags-title">Tags</h3>
+            <div class="tags" id="modalTags"></div>
+          </div>
         </div>
 
         <!-- Action buttons -->
@@ -902,6 +1005,7 @@
                 <div class="form-group">
                     <label for="login-password">Password</label>
                     <input type="password" id="login-password" placeholder="••••••••" required>
+                    <a href="#" class="toggle-auth forgot-password-link"><button type="button" id="showForgotPassword">Forgot password?</button></a>
                 </div>
                 <button type="submit" class="auth-btn">Log In</button>
             </form>
@@ -930,6 +1034,27 @@
             </div>
         </div>
 
+        <!-- Forgot Password Form -->
+        <div id="forgot-password-container" style="display: none;">
+            <h2>Reset Password</h2>
+            <p>Enter your email to receive a reset link.</p>
+            <form id="forgotPasswordForm" style="margin-top: 25px;">
+                <div class="form-group">
+                    <label for="forgot-email">Email</label>
+                    <input type="email" id="forgot-email" placeholder="name@example.com" required>
+                </div>
+                <button type="submit" class="auth-btn">Send Reset Link</button>
+            </form>
+            <div class="toggle-auth">
+                Remembered your password? <button id="backToLogin">Back to Log In</button>
+            </div>
+            <div class="contact-info">
+              <p class="contact-info-title">Helpline </p>
+              <p>Contact: <a href="tel:7775983924">7775983924</a></p>
+              <p>Email: <a href="mailto:kaleom5757@gmail.com">kaleom5757@gmail.com</a></p>
+            </div>
+        </div>
+
         <div id="authMessage" class="error"></div>
     </div>
 </div>
@@ -939,7 +1064,7 @@
 <script type="module">
     // --- FIREBASE SDK IMPORTS ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
@@ -977,6 +1102,12 @@
     const modalOverlay = document.getElementById('modalOverlay');
     const modalImage = document.getElementById('modalImage');
     const modalTitle = document.getElementById('modalTitle');
+    const modalPhotographer = document.getElementById('modalPhotographer');
+    const modalDownloads = document.getElementById('modalDownloads');
+    const modalViews = document.getElementById('modalViews');
+    const modalCategory = document.getElementById('modalCategory');
+    const modalDate = document.getElementById('modalDate');
+    const modalTags = document.getElementById('modalTags');
     const modalDownloadBtn = document.getElementById('modalDownloadBtn');
     const shareBtn = document.getElementById('shareBtn');
     const closeModalBtn = document.getElementById('closeModal');
@@ -986,10 +1117,14 @@
     const loginPageContainer = document.getElementById('loginPageContainer');
     const loginFormContainer = document.getElementById('login-form-container');
     const signupFormContainer = document.getElementById('signup-form-container');
+    const forgotPasswordContainer = document.getElementById('forgot-password-container');
     const showSignupBtn = document.getElementById('showSignup');
     const showLoginBtn = document.getElementById('showLogin');
+    const showForgotPasswordBtn = document.getElementById('showForgotPassword');
+    const backToLoginBtn = document.getElementById('backToLogin');
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
     const authMessage = document.getElementById('authMessage');
 
     // Theme Elements
@@ -1060,6 +1195,7 @@
             loginPageContainer.style.display = 'flex';
             loginFormContainer.style.display = 'block';
             signupFormContainer.style.display = 'none';
+            forgotPasswordContainer.style.display = 'none';
             hideAuthMessage();
         }
     };
@@ -1068,12 +1204,24 @@
     showSignupBtn.addEventListener('click', () => {
         loginFormContainer.style.display = 'none';
         signupFormContainer.style.display = 'block';
+        forgotPasswordContainer.style.display = 'none';
         hideAuthMessage();
     });
 
-    showLoginBtn.addEventListener('click', () => {
+    const showLoginScreen = () => {
         signupFormContainer.style.display = 'none';
         loginFormContainer.style.display = 'block';
+        forgotPasswordContainer.style.display = 'none';
+        hideAuthMessage();
+    };
+
+    showLoginBtn.addEventListener('click', showLoginScreen);
+    backToLoginBtn.addEventListener('click', showLoginScreen);
+
+    showForgotPasswordBtn.addEventListener('click', () => {
+        loginFormContainer.style.display = 'none';
+        signupFormContainer.style.display = 'none';
+        forgotPasswordContainer.style.display = 'block';
         hideAuthMessage();
     });
 
@@ -1116,6 +1264,22 @@
                     message = "An account with this email already exists.";
                 } else if (error.code === 'auth/invalid-email') {
                     message = "Please enter a valid email address.";
+                }
+                showAuthMessage(message);
+            });
+    });
+
+    forgotPasswordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('forgot-email').value;
+        sendPasswordResetEmail(auth, email)
+            .then(() => {
+                showAuthMessage("Password reset link sent to your email!", false);
+            })
+            .catch((error) => {
+                let message = "Could not send reset link. Please try again.";
+                if(error.code === 'auth/user-not-found') {
+                    message = "No account found with this email.";
                 }
                 showAuthMessage(message);
             });
@@ -1249,6 +1413,27 @@
         currentModalPhoto = photo;
         modalImage.src = photo.src.large2x;
         modalTitle.textContent = photo.alt || 'Untitled Wallpaper';
+
+        // Populate desktop-only info
+        modalPhotographer.textContent = `Photo by ${photo.photographer}`;
+        modalDownloads.textContent = `⬇️ ${(Math.floor(Math.random() * 1500) + 500).toLocaleString()} downloads`;
+        modalViews.textContent = `👁️ ${(Math.floor(Math.random() * 8000) + 2000).toLocaleString()} views`;
+        modalCategory.textContent = currentQuery;
+        const date = new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 30);
+        modalDate.textContent = date.toLocaleDateString();
+        modalTags.innerHTML = '';
+        const tags = (photo.alt || '').split(' ').filter(tag => tag.length > 3 && isNaN(tag));
+        tags.slice(0, 5).forEach(tag => {
+            const span = document.createElement('span');
+            span.textContent = `#${tag.toLowerCase().replace(/[^a-z0-9]/gi, '')}`;
+            modalTags.appendChild(span);
+        });
+        if (tags.length === 0 && currentQuery !== 'shared') {
+            const span = document.createElement('span');
+            span.textContent = `#${currentQuery.toLowerCase()}`;
+            modalTags.appendChild(span);
+        }
+
         modalOverlay.classList.add('show');
     }
 
