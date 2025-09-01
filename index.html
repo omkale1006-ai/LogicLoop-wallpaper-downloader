@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WallpaperHub</title>
+  <title>LogicLoop | WallpaperHub</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32'><rect width='32' height='32' rx='5' fill='black'/><text x='50%' y='50%' dominant-baseline='central' text-anchor='middle' font-size='16' font-family='Poppins, sans-serif' font-weight='700' fill='white'>OK</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1019,22 +1019,34 @@
         <!-- Signup Form -->
         <div id="signup-form-container" style="display: none;">
             <h2>Create Account</h2>
-            <p>Get started with a free account.</p>
-            <form id="signupForm" style="margin-top: 25px;">
-                <div class="form-group">
-                    <label for="signup-email">Email</label>
-                    <input type="email" id="signup-email" placeholder="name@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" placeholder="6+ characters" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-confirm-password">Confirm Password</label>
-                    <input type="password" id="signup-confirm-password" placeholder="Re-enter password" required>
-                </div>
-                <button type="submit" class="auth-btn">Create Account</button>
-            </form>
+            <div id="send-signup-otp-view">
+                <p>First, let's verify your email.</p>
+                <form id="sendSignupOtpForm" style="margin-top: 25px;">
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" placeholder="name@example.com" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Send Verification OTP</button>
+                </form>
+            </div>
+            <div id="verify-signup-otp-view" style="display: none;">
+                <p>An OTP has been sent to your email.</p>
+                <form id="verifySignupForm" style="margin-top: 25px;">
+                    <div class="form-group">
+                        <label for="signup-otp">Verification OTP</label>
+                        <input type="text" id="signup-otp" placeholder="Enter 6-digit OTP" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" placeholder="6+ characters" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm-password">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" placeholder="Re-enter password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Create Account</button>
+                </form>
+            </div>
             <div class="toggle-auth">
                 Already have an account? <button id="showLogin">Log In</button>
             </div>
@@ -1043,26 +1055,14 @@
         <!-- Forgot Password Form -->
         <div id="forgot-password-container" style="display: none;">
             <h2>Reset Password</h2>
-            <div id="send-otp-view">
-                <p>sent Reset Password Link.</p>
-                <form id="sendOtpForm" style="margin-top: 25px;">
-                    <div class="form-group">
-                        <label for="forgot-email">Email</label>
-                        <input type="email" id="forgot-email" placeholder="name@example.com" required>
-                    </div>
-                    <button type="submit" class="auth-btn">Send Reset Link</button>
-                </form>
-            </div>
-            <div id="verify-otp-view" style="display: none;">
-                <p>An OTP has been sent. Please enter it below to get your reset link.</p>
-                <form id="verifyOtpForm" style="margin-top: 25px;">
-                    <div class="form-group">
-                        <label for="otp-input">OTP</label>
-                        <input type="text" id="otp-input" placeholder="Enter 6-digit OTP" required>
-                    </div>
-                    <button type="submit" class="auth-btn">Verify OTP & Send Link</button>
-                </form>
-            </div>
+            <p>Enter your email to receive a reset link.</p>
+            <form id="forgotPasswordForm" style="margin-top: 25px;">
+                <div class="form-group">
+                    <label for="forgot-email">Email</label>
+                    <input type="email" id="forgot-email" placeholder="name@example.com" required>
+                </div>
+                <button type="submit" class="auth-btn">Send Reset Link</button>
+            </form>
             <div class="toggle-auth">
                 Remembered your password? <button id="backToLogin">Back to Log In</button>
             </div>
@@ -1136,16 +1136,17 @@
     const loginFormContainer = document.getElementById('login-form-container');
     const signupFormContainer = document.getElementById('signup-form-container');
     const forgotPasswordContainer = document.getElementById('forgot-password-container');
-    const sendOtpView = document.getElementById('send-otp-view');
-    const verifyOtpView = document.getElementById('verify-otp-view');
+    const sendSignupOtpView = document.getElementById('send-signup-otp-view');
+    const verifySignupOtpView = document.getElementById('verify-signup-otp-view');
     const showSignupBtn = document.getElementById('showSignup');
     const showLoginBtn = document.getElementById('showLogin');
     const showForgotPasswordBtn = document.getElementById('showForgotPassword');
     const backToLoginBtn = document.getElementById('backToLogin');
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
-    const sendOtpForm = document.getElementById('sendOtpForm');
-    const verifyOtpForm = document.getElementById('verifyOtpForm');
+    const sendSignupOtpForm = document.getElementById('sendSignupOtpForm');
+    const verifySignupForm = document.getElementById('verifySignupForm');
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
     const authMessage = document.getElementById('authMessage');
 
     // Theme Elements
@@ -1157,7 +1158,7 @@
     let isFetching = false;
     let currentModalPhoto = null;
     let generatedOTP = null;
-    let userEmailForReset = null;
+    let userEmailForSignup = null;
 
     // --- TOAST NOTIFICATION ---
     function showToast(message, type = 'success') {
@@ -1201,9 +1202,9 @@
       return otp;
     }
 
-    function sendOTPEmail(userEmail) {
+    function sendOTPEmail(userEmail, context) {
       generatedOTP = generateOTP(6);
-      userEmailForReset = userEmail;
+
       const expiryTime = new Date(Date.now() + 15 * 60000).toLocaleTimeString();
 
       emailjs.send("service_vzshuyb", "template_oxahqnk", {
@@ -1214,8 +1215,11 @@
       .then(function(response) {
           showAuthMessage("OTP sent successfully to " + userEmail, false);
           console.log("SUCCESS!", response.status, response.text);
-          sendOtpView.style.display = 'none';
-          verifyOtpView.style.display = 'block';
+          if (context === 'signup') {
+              userEmailForSignup = userEmail;
+              sendSignupOtpView.style.display = 'none';
+              verifySignupOtpView.style.display = 'block';
+          }
       }, function(error) {
           showAuthMessage("FAILED to send OTP. Please try again.");
           console.error("FAILED...", error);
@@ -1266,6 +1270,8 @@
     showSignupBtn.addEventListener('click', () => {
         loginFormContainer.style.display = 'none';
         signupFormContainer.style.display = 'block';
+        sendSignupOtpView.style.display = 'block';
+        verifySignupOtpView.style.display = 'none';
         forgotPasswordContainer.style.display = 'none';
         hideAuthMessage();
     });
@@ -1284,8 +1290,6 @@
         loginFormContainer.style.display = 'none';
         signupFormContainer.style.display = 'none';
         forgotPasswordContainer.style.display = 'block';
-        sendOtpView.style.display = 'block';
-        verifyOtpView.style.display = 'none';
         hideAuthMessage();
     });
 
@@ -1308,23 +1312,32 @@
             });
     });
 
-    signupForm.addEventListener('submit', (e) => {
+    sendSignupOtpForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('signup-email').value;
+        sendOTPEmail(email, 'signup');
+    });
+
+    verifySignupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const otp = document.getElementById('signup-otp').value;
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('signup-confirm-password').value;
 
+        if (otp !== generatedOTP) {
+            showAuthMessage("Invalid OTP. Please try again.");
+            return;
+        }
         if (password.length < 6) {
             showAuthMessage("Password should be at least 6 characters.");
             return;
         }
-
         if (password !== confirmPassword) {
             showAuthMessage("Passwords do not match.");
             return;
         }
 
-        createUserWithEmailAndPassword(auth, email, password)
+        createUserWithEmailAndPassword(auth, userEmailForSignup, password)
             .then((userCredential) => {
                 showToast("Account created successfully!");
                 const user = userCredential.user;
@@ -1341,7 +1354,8 @@
             });
     });
 
-    sendOtpForm.addEventListener('submit', (e) => {
+
+    forgotPasswordForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('forgot-email').value;
         sendPasswordResetEmail(auth, email)
@@ -1357,12 +1371,6 @@
             });
     });
 
-    verifyOtpForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        // This form is no longer used for OTP verification directly,
-        // but keeping the logic structure in case it's needed later.
-        // The new flow is simplified to just sending the reset link.
-    });
 
     authBtn.addEventListener('click', handleAuth);
 
