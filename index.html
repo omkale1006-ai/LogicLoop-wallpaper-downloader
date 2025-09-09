@@ -1568,7 +1568,7 @@
         if (!currentModalPhoto) return;
         const shareUrl = `${window.location.origin}${window.location.pathname}?photoId=${currentModalPhoto.id}`;
         const shareData = {
-            title: `Wallpaper by ${photo.photographer}`,
+            title: `Wallpaper by ${currentModalPhoto.photographer}`,
             text: `Check out this amazing wallpaper from LogicLoop WallpaperHub!`,
             url: shareUrl,
         };
@@ -1698,5 +1698,4 @@
 
 </body>
 </html>
-
 
